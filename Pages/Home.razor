@@ -2,60 +2,81 @@
 @using WattWatcher.Data
 @inject ElectricService ElectricService
 
-<h3>Electric Data</h3>
 
-<!-- Chart for visualizing sample data -->
-<ApexChart TItem="MyData"
-           Title="Sample Data">
-    <ApexPointSeries TItem="MyData"
-                     Items="Data"
-                     Name="Net Profit"
-                     SeriesType="SeriesType.Bar"
-                     XValue="@(e => e.Category)"
-                     YValue="@(e => e.NetProfit)" />
-    <ApexPointSeries TItem="MyData"
-                     Items="Data"
-                     Name="Revenue"
-                     SeriesType="SeriesType.Bar"
-                     XValue="@(e => e.Category)"
-                     YValue="@(e => e.Revenue)" />
-</ApexChart>
+    
+        <h3>Electric Data</h3>
 
-<!-- Display Electric Data for Circuit 1 and Circuit 2 -->
-@if (Circuit1Data != null)
-{
-    <div class="card mb-3">
-        <div class="card-header bg-primary text-white">
-            Kitchen Circuit
-        </div>
-        <div class="card-body d-flex justify-content-between align-items-center">
-            <div>
-                <p class="card-text mb-0">Amperage: @Circuit1Data.Amps A</p>
-                <p class="card-text mb-0">Wattage: @Circuit1Data.Watts W</p>
-                <p class="card-text mb-0">Kwh: @Circuit1Data.Kwh kWh</p>
-            </div>
-            <a href="/ViewMore/Circuit1" class="btn btn-primary">View More</a>
-        </div>
+        <!-- Chart for visualizing sample data -->
+        <ApexChart TItem="MyData"
+                   Title="Sample Data">
+            <ApexPointSeries TItem="MyData"
+                             Items="Data"
+                             Name="Net Profit"
+                             SeriesType="SeriesType.Bar"
+                             XValue="@(e => e.Category)"
+                             YValue="@(e => e.NetProfit)" />
+            <ApexPointSeries TItem="MyData"
+                             Items="Data"
+                             Name="Revenue"
+                             SeriesType="SeriesType.Bar"
+                             XValue="@(e => e.Category)"
+                             YValue="@(e => e.Revenue)" />
+        </ApexChart>
+
+
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex flex-row flex-nowrap overflow-auto" role="group" aria-label="Month Carousel">
+        @foreach (var month in months)
+        {
+            <button type="button" class="btn btn-outline-secondary m-1 btn-month" @onclick="() => SetCurrentMonth(month)">
+                @month
+            </button>
+        }
     </div>
-}
+</div>
 
-@if (Circuit2Data != null)
-{
-    <div class="card mb-3">
-        <div class="card-header bg-primary text-white">
-            Main Circuit
-        </div>
-        <div class="card-body d-flex justify-content-between align-items-center">
-            <div>
-                <p class="card-text mb-0">Amperage: @Circuit2Data.Amps A</p>
-                <p class="card-text mb-0">Wattage: @Circuit2Data.Watts W</p>
-                <p class="card-text mb-0">Kwh: @Circuit2Data.Kwh kWh</p>
+
+<div class="card">
+
+    <div class="card-body">
+
+        <!-- Display Electric Data for Circuit 1 and Circuit 2 -->
+        @if (Circuit1Data != null)
+        {
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    Kitchen Circuit
+                </div>
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="card-text mb-0">Amperage: @Circuit1Data.Amps A</p>
+                        <p class="card-text mb-0">Wattage: @Circuit1Data.Watts W</p>
+                        <p class="card-text mb-0">Kwh: @Circuit1Data.Kwh kWh</p>
+                    </div>
+                    <a href="/ViewMore/Circuit1" class="btn btn-primary">View More</a>
+                </div>
             </div>
-            <a href="/ViewMore/Circuit2" class="btn btn-primary">View More</a>
-        </div>
-    </div>
-}
+        }
 
+        @if (Circuit2Data != null)
+        {
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    Main Circuit
+                </div>
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="card-text mb-0">Amperage: @Circuit2Data.Amps A</p>
+                        <p class="card-text mb-0">Wattage: @Circuit2Data.Watts W</p>
+                        <p class="card-text mb-0">Kwh: @Circuit2Data.Kwh kWh</p>
+                    </div>
+                    <a href="/ViewMore/Circuit2" class="btn btn-primary">View More</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
 
 @code {
     public ElectricModel Circuit1Data;
@@ -68,16 +89,7 @@
         InitializeChartData();
     }
 
-    private void InitializeChartData()
-    {
-        // Sample data for the chart
-        Data.AddRange(new List<MyData>
-        {
-            new MyData { Category = "Jan", NetProfit = 12, Revenue = 33 },
-            new MyData { Category = "Feb", NetProfit = 43, Revenue = 42 },
-            new MyData { Category = "Mar", NetProfit = 112, Revenue = 23 }
-        });
-    }
+   
 
     private void UpdateData(int circuitId, ElectricModel newData)
     {
@@ -91,13 +103,45 @@
             {
                 Circuit2Data = newData;
             }
-            StateHasChanged(); // Notify the UI to update
+            StateHasChanged();
         });
     }
 
     public void Dispose()
     {
-        ElectricService.OnDataUpdated -= UpdateData; // Clean up to avoid memory leaks
+        ElectricService.OnDataUpdated -= UpdateData;
+    }
+
+    
+
+
+    //CAROUSEL MONTHS
+    private readonly List<string> months = new List<string>
+    {
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    };
+    private string currentMonth = "Jan";
+
+    private void SetCurrentMonth(string month)
+    {
+        currentMonth = month;
+        // Add logic here to filter data or perform actions based on the selected month
+        StateHasChanged();
+    }
+
+
+
+    //CHART DATA 
+
+    private void InitializeChartData()
+    {
+        Data.AddRange(new List<MyData>
+        {
+            new MyData { Category = "Jan", NetProfit = 12, Revenue = 33 },
+            new MyData { Category = "Feb", NetProfit = 43, Revenue = 42 },
+            new MyData { Category = "Mar", NetProfit = 112, Revenue = 23 }
+        });
     }
 
     public class MyData
@@ -105,5 +149,5 @@
         public string Category { get; set; }
         public int NetProfit { get; set; }
         public int Revenue { get; set; }
-    }
+    }   
 }

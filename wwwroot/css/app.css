@@ -1,5 +1,20 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+/* Add this to your app.css or a similar file */
+.btn-month {
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+    .btn-month:hover {
+        background-color: #007bff; /* Bootstrap primary color */
+        color: white;
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); /* Shadow that matches the primary color */
+    }
+
+
+
+
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
