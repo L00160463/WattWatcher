@@ -1,0 +1,57 @@
+﻿@page "/ViewMore"
+@using WattWatcher.Data
+@inject ElectricService ElectricService
+
+<h3>Electric Data</h3>
+@* 
+@if (Circuit1Data != null)
+{
+    <div>
+        <h4>Circuit 1</h4>
+        <p>Amperage: @Circuit1Data.Amps A</p>
+        <p>Wattage: @Circuit1Data.Watts W</p>
+        <p>Kwh: @Circuit1Data.Kwh kWh</p>
+    </div>
+}
+
+@if (Circuit2Data != null)
+{
+    <div>
+        <h4>Circuit 2</h4>
+        <p>Amperage: @Circuit2Data.Amps A</p>
+        <p>Wattage: @Circuit2Data.Watts W</p>
+        <p>Kwh: @Circuit2Data.Kwh kWh</p>
+    </div>
+}
+
+@code {
+    public ElectricModel Circuit1Data;
+    public ElectricModel Circuit2Data;
+
+    protected override void OnInitialized()
+    {
+        ElectricService.OnDataUpdated += UpdateData;
+    }
+
+    private void UpdateData(int circuitId, ElectricModel newData)
+    {
+        InvokeAsync(() =>
+        {
+            if (circuitId == 1)
+            {
+                Circuit1Data = newData;
+            }
+            else if (circuitId == 2)
+            {
+                Circuit2Data = newData;
+            }
+            StateHasChanged(); // Re-render the component with the new data
+        });
+    }
+
+    public void Dispose()
+    {
+        ElectricService.OnDataUpdated -= UpdateData;
+    }
+}
+ *@
