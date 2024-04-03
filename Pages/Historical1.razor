@@ -20,7 +20,8 @@
                     @foreach (var item in historicalData)
                     {
                         <tr>
-                            <td>[Date Placeholder]</td>
+                            <!-- Formatting the Timestamp property for display -->
+                            <td>@item.Timestamp.ToString("dd-MM-yyyyy hh:mm:tt")</td>
                             <td>@item.Circuit1.AvgAmps</td>
                             <td>@item.Circuit1.AvgKwh</td>
                             <td>@item.Circuit1.AvgWatts</td>
