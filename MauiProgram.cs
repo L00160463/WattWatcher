@@ -26,6 +26,7 @@ namespace WattWatcher
 #endif
 
             builder.Services.AddSingleton<ElectricService>();
+            builder.Services.AddScoped<AverageService>();
             builder.Services.AddScoped<HttpClient>();
 
             builder.Services.AddBlazorBootstrap();
