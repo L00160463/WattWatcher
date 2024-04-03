@@ -16,8 +16,8 @@ public class ElectricService
         // Initialize and start the timer to fetch data every second from both circuits
         timer = new Timer(async _ =>
         {
-            await FetchDataPeriodically("https://wattwatcher-pro-default-rtdb.firebaseio.com/Circuit1/.json", 1);
-            await FetchDataPeriodically("https://wattwatcher-pro-default-rtdb.firebaseio.com/Circuit2/.json", 2);
+            await FetchDataPeriodically("https://wattwatcher-pro-default-rtdb.firebaseio.com/circuit1.json", 1);
+            await FetchDataPeriodically("https://wattwatcher-pro-default-rtdb.firebaseio.com/circuit2.json", 2);
         }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
     }
 
@@ -44,7 +44,7 @@ public class ElectricService
     {
         try
         {
-            string apiUrl = "https://wattwatcher-pro-default-rtdb.firebaseio.com/Circuit1/.json";
+            string apiUrl = "https://wattwatcher-pro-default-rtdb.firebaseio.com/circuit1.json";
             HttpResponseMessage response = await client.GetAsync(apiUrl);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();

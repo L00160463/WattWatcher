@@ -1,0 +1,55 @@
+﻿@page "/Circuit1"
+
+<h3 class="mb-4">Circuit 1 Details</h3>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+          
+
+            <!-- Live Data Display -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    Live Energy Consumption
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-around text-center mb-3">
+                        <div>
+                            <h6>Watts</h6>
+                            <span id="liveWatts" class="text-primary font-weight-bold">-- W</span>
+                        </div>
+                        <div>
+                            <h6>kWh</h6>
+                            <span id="liveKwh" class="text-success font-weight-bold">-- kWh</span>
+                        </div>
+                        <div>
+                            <h6>Amps</h6>
+                            <span id="liveAmps" class="text-danger font-weight-bold">-- A</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historical Data Summary -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    Summary
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Energy Usage This Month: <strong>XX kWh</strong></li>
+                    <li class="list-group-item">Cost This Month: <strong>€XX.XX</strong></li>
+                    <li class="list-group-item">Average Daily Use: <strong>XX kWh</strong></li>
+                    <li class="list-group-item">Recommended Actions:</li>
+                    <li class="list-group-item">
+                        <ul>
+                            <li>Consider LED lighting to reduce usage</li>
+                            <li>Unplug devices when not in use</li>
+                            <li>Perform regular maintenance checks</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
