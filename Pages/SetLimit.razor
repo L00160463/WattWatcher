@@ -1,7 +1,38 @@
 ﻿@page "/SetLimit"
 
-<h3>SetLimit</h3>
+<h3 class="mb-4">Set Circuit Limit</h3>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Limit Settings
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="circuitSelect" class="form-label">Select Circuit</label>
+                            <select class="form-select" id="circuitSelect">
+                                <option selected>Choose...</option>
+                                <option value="1">Circuit 1</option>
+                                <option value="2">Circuit 2</option>
+                                <option value="3">Circuit 3</option>
+                                <!-- Add more options based on your circuits -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="limitInput" class="form-label">Limit (kWh)</label>
+                            <input type="number" class="form-control" id="limitInput" placeholder="Enter limit">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Set Limit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
-
+    // Code to handle form submission, update limits, etc.
 }

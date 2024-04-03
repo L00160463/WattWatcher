@@ -66,4 +66,14 @@ public class ElectricService
         timer?.Change(Timeout.Infinite, 0);
         timer?.Dispose();
     }
+
+
+
+
+
+
+
+
+
+
 }
