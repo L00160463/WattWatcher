@@ -2,6 +2,7 @@
 {
     public class RecordData
     {
+        public DateTime Timestamp { get; set; } // Add this line
         public CircuitData Circuit1 { get; set; }
         public CircuitData Circuit2 { get; set; }
     }

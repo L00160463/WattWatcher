@@ -1,8 +1,8 @@
-﻿@page "/Historical1"
+﻿@page "/Historical2"
 @using WattWatcher.Data
 @inject AverageService AverageService
 
-<h3 class="mb-4">Circuit 1 - Historical Data</h3>
+<h3 class="mb-4">Circuit 2 - Historical Data</h3>
 
 <div class="container">
     <div class="row">
@@ -22,9 +22,9 @@
                         <tr>
                             <!-- Formatting the Timestamp property for display -->
                             <td>@item.Timestamp.ToString("dd-MM-yyyyy hh:mm:tt")</td>
-                            <td>@item.Circuit1.AvgAmps</td>
-                            <td>@item.Circuit1.AvgKwh</td>
-                            <td>@item.Circuit1.AvgWatts</td>
+                            <td>@item.Circuit2.AvgAmps</td>
+                            <td>@item.Circuit2.AvgKwh</td>
+                            <td>@item.Circuit2.AvgWatts</td>
                         </tr>
                     }
                 </tbody>
