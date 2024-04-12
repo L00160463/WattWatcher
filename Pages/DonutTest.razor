@@ -1,0 +1,48 @@
+﻿@page "/DonutTest"
+<h3 class="text-center mt-4">Electricity Used </h3>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-sm p-3 mb-5 bg-white rounded">
+                <div class="card-body">
+                    <ApexChart TItem="Order"
+                               Title="Electricity Consumption this Week"> 
+
+                        <ApexPointSeries TItem="Order"
+                                         Items="Orders"
+                                         SeriesType="SeriesType.Donut"
+                                         Name="Gross Value"
+                                         XValue="@(e => e.Day)" 
+                                         YAggregate="@(e => e.Sum(e => e.GrossValue))" 
+                                         OrderByDescending="e=>e.Y"
+                                         />
+                    </ApexChart>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Order> Orders { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Orders = new List<Order>
+        {
+            new Order { Day = "Kitchen",    GrossValue = 100 },
+            new Order { Day = "Living Room",   GrossValue = 65  },
+            new Order { Day = "Heating", GrossValue = 75  },
+            new Order { Day = "Garage",  GrossValue = 22  },
+            new Order { Day = "Master Bedroom",    GrossValue = 7   },
+
+        };
+    }
+
+    public class Order
+    {
+        public string Day { get; set; }
+        public decimal GrossValue { get; set; }
+    }
+}

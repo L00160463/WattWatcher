@@ -1,0 +1,43 @@
+﻿@page "/Historical2"
+@using WattWatcher.Data
+@inject AverageService AverageService
+
+<h3 class="mb-4">Circuit 2 - Historical Data</h3>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Amps (A)</th>
+                        <th>kWh</th>
+                        <th>Watts (W)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in historicalData)
+                    {
+                        <tr>
+                            <!-- Formatting the Timestamp property for display -->
+                            <td>@item.Timestamp.ToString("dd-MM-yyyyy hh:mm:tt")</td>
+                            <td>@item.Circuit2.AvgAmps</td>
+                            <td>@item.Circuit2.AvgKwh</td>
+                            <td>@item.Circuit2.AvgWatts</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<RecordData> historicalData = new List<RecordData>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        historicalData = await AverageService.GetHistoricalDataAsync();
+    }
+}

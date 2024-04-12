@@ -1,77 +1,102 @@
-﻿@page "/Circuit1"
+﻿@page "/circuit1"
 @using WattWatcher.Data
 @inject ElectricService ElectricService
 
-<h3 class="mb-4">Circuit 1 Details</h3>
+<h3 class="mb-4 text-center">Circuit 1 Details</h3>
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-
-          
-            @if (Circuit1Data != null)
-            {
-                <!-- Live Data Display -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                    Live Energy Consumption
-                </div>
+        <div class="col-lg-10 col-md-12">
+            <!-- Bar Chart for Weekly Gross Value -->
+            <div class="card shadow-sm p-3 mb-4 bg-white rounded">
                 <div class="card-body">
-                    <div class="d-flex justify-content-around text-center mb-3">
-                        <div>
-                            <h6>Watts</h6>
-                            <span id="liveWatts" class="text-primary font-weight-bold">@Circuit1Data.Watts W</span>
-                        </div>
-                        <div>
-                            <h6>kWh</h6>
-                            <span id="liveKwh" class="text-success font-weight-bold">@Circuit1Data.Kwh kWh</span>
-                        </div>
-                        <div>
-                            <h6>Amps</h6>
-                            <span id="liveAmps" class="text-danger font-weight-bold">@Circuit1Data.Amps A</span>
-                        </div>
-                    </div>
+                    <h4 class="text-center mb-4">Weekly Gross Value</h4>
+                    <ApexChart TItem="Order"
+                               Title="Weekly Sales Chart">
+                        <ApexPointSeries TItem="Order"
+                                         Items="Orders"
+                                         Name="Gross Value"
+                                         XValue="@(e => e.Day)"
+                                         YAggregate="@(e => e.Sum(e => e.GrossValue))"
+                                         SeriesType="SeriesType.Bar" />
+                    </ApexChart>
                 </div>
             </div>
 
+            <!-- Live Data Display -->
+            @if (Circuit1Data != null)
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Live Energy Consumption
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-around text-center mb-3">
+                            <div>
+                                <h6>Watts</h6>
+                                <span class="text-primary font-weight-bold">@Circuit1Data.Watts W</span>
+                            </div>
+                            <div>
+                                <h6>kWh</h6>
+                                <span class="text-success font-weight-bold">@Circuit1Data.Kwh kWh</span>
+                            </div>
+                            <div>
+                                <h6>Amps</h6>
+                                <span class="text-danger font-weight-bold">@Circuit1Data.Amps A</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             }
 
-            <!-- Historical Data Summary -->
+            <!-- Summary and Recommendations -->
             <div class="card mb-4">
                 <div class="card-header">
-                    Summary
+                    Monthly Summary and Recommendations
                 </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Energy Usage This Month: <strong>XX kWh</strong></li>
-                    <li class="list-group-item">Cost This Month: <strong>€XX.XX</strong></li>
-                    <li class="list-group-item">Average Daily Use: <strong>XX kWh</strong></li>
-                    <li class="list-group-item">Recommended Actions:</li>
-                    <li class="list-group-item">
-                        <ul>
-                            <li>Consider LED lighting to reduce usage</li>
-                            <li>Unplug devices when not in use</li>
-                            <li>Perform regular maintenance checks</li>
-                        </ul>
-                    </li>
-                </ul>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Energy Usage This Month: <strong>450 kWh</strong></li>
+                        <li class="list-group-item">Cost This Month: <strong>€120.00</strong></li>
+                        <li class="list-group-item">Average Daily Use: <strong>15 kWh</strong></li>
+                        <li class="list-group-item">
+                            Recommended Actions:
+                            <ul>
+                                <li>Consider LED lighting to reduce usage</li>
+                                <li>Unplug devices when not in use</li>
+                                <li>Perform regular maintenance checks</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-
-
 @code {
-
-    public ElectricModel Circuit1Data;
-    public ElectricModel Circuit2Data;
+    private List<Order> Orders { get; set; }
+    public ElectricModel Circuit1Data { get; set; }
 
     protected override void OnInitialized()
     {
         ElectricService.OnDataUpdated += UpdateData;
-
+        InitializeOrders();
     }
 
+    private void InitializeOrders()
+    {
+        Orders = new List<Order>
+        {
+            new Order { Day = "Monday", GrossValue = 100 },
+            new Order { Day = "Tuesday", GrossValue = 65 },
+            new Order { Day = "Wednesday", GrossValue = 75 },
+            new Order { Day = "Thursday", GrossValue = 22 },
+            new Order { Day = "Friday", GrossValue = 7 },
+            new Order { Day = "Saturday", GrossValue = 54 },
+            new Order { Day = "Sunday", GrossValue = 11 }
+        };
+    }
 
     private void UpdateData(int circuitId, ElectricModel newData)
     {
@@ -81,10 +106,6 @@
             {
                 Circuit1Data = newData;
             }
-            else if (circuitId == 2)
-            {
-                Circuit2Data = newData;
-            }
             StateHasChanged();
         });
     }
@@ -93,5 +114,10 @@
     {
         ElectricService.OnDataUpdated -= UpdateData;
     }
-  
+
+    public class Order
+    {
+        public string Day { get; set; }
+        public decimal GrossValue { get; set; }
+    }
 }
