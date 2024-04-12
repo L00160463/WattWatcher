@@ -1,0 +1,106 @@
+﻿@page "/Historical1"
+@using WattWatcher.Data
+@inject AverageService AverageService
+
+<h3 class="mb-4 text-center">Historical Data</h3>
+
+<div class="container">
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <input type="date" class="form-control" @bind="filterDate" placeholder="Filter by date..." />
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" @bind="sortBy">
+                        <option value="Date">Date</option>
+                        <option value="Amps">Amps (Ascending)</option>
+                        <option value="kWh">kWh (Ascending)</option>
+                        <option value="Watts">Watts (Ascending)</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" @bind="selectedCircuit">
+                        <option value="1">Living Room</option>
+                        <option value="2">Garage</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary" @onclick="ApplyFilters">Apply Filters</button>
+                </div>
+            </div>
+
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Amps (A)</th>
+                        <th>kWh</th>
+                        <th>Watts (W)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (selectedCircuit == "1")
+                    {
+                        @foreach (var item in filteredData)
+                        {
+                            <tr>
+                                <td>@item.Timestamp.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                                <td>@item.Circuit1.AvgAmps</td>
+                                <td>@item.Circuit1.AvgKwh</td>
+                                <td>@item.Circuit1.AvgWatts</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        @foreach (var item in filteredData)
+                        {
+                            <tr>
+                                <td>@item.Timestamp.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                                <td>@item.Circuit2.AvgAmps</td>
+                                <td>@item.Circuit2.AvgKwh</td>
+                                <td>@item.Circuit2.AvgWatts</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<RecordData> historicalData = new List<RecordData>();
+    private List<RecordData> filteredData = new List<RecordData>();
+    private string sortBy = "Date";
+    private string selectedCircuit = "1";
+    private DateTime? filterDate;
+
+    protected override async Task OnInitializedAsync()
+    {
+        historicalData = await AverageService.GetHistoricalDataAsync();
+        filteredData = historicalData;
+    }
+
+    private void ApplyFilters()
+    {
+        filteredData = historicalData.Where(data => !filterDate.HasValue || data.Timestamp.Date == filterDate.Value.Date).ToList();
+
+        switch (sortBy)
+        {
+            case "Amps":
+                filteredData = filteredData.OrderBy(d => selectedCircuit == "1" ? d.Circuit1.AvgAmps : d.Circuit2.AvgAmps).ToList();
+                break;
+            case "kWh":
+                filteredData = filteredData.OrderBy(d => selectedCircuit == "1" ? d.Circuit1.AvgKwh : d.Circuit2.AvgKwh).ToList();
+                break;
+            case "Watts":
+                filteredData = filteredData.OrderBy(d => selectedCircuit == "1" ? d.Circuit1.AvgWatts : d.Circuit2.AvgWatts).ToList();
+                break;
+            default:
+                filteredData = filteredData.OrderBy(d => d.Timestamp).ToList();
+                break;
+        }
+    }
+}

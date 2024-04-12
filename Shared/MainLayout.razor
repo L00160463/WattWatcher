@@ -1,19 +1,47 @@
 ﻿@inherits LayoutComponentBase
 
+<link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
+<link href="css/app.css" rel="stylesheet">
+
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+    <NavMenu />
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://thingsboard.io/smart-energy/#:~:text=IoT%20energy%20monitoring%20system%20works,insights%20into%20energy%20consumption%20patterns." target="_blank">Help</a>
+        <header>
+            <div class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="Home">
+                        <i class="bi bi-lightning-fill"></i> WattWatchers
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarContent">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <NavLink class="nav-link active" href="Home">Home</NavLink>
+                            </li>
+                            <li class="nav-item">
+                                <NavLink class="nav-link" href="ViewLive">Live Data</NavLink>
+                            </li>
+                            <li class="nav-item">
+                                <NavLink class="nav-link" href="Historical1">Historical</NavLink>
+                            </li>
+                            <li class="nav-item">
+                                <NavLink class="nav-link" href="SetLimit">Set Limit</NavLink>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="top-row px-4 mt-5">
+            <a href="https://thingsboard.io/smart-energy/" target="_blank">Help</a>
         </div>
 
-        <article class="content px-4">
+        <article class="content px-4 mt-4">
             @Body
         </article>
     </main>
 </div>
-
-
