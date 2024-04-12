@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WattWatcher.Data;
-using BlazorBootstrap;
 using System.Net.Http;
 
 namespace WattWatcher
@@ -19,7 +18,6 @@ namespace WattWatcher
                 });
 
             builder.Services.AddMauiBlazorWebView();
-
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
@@ -28,6 +26,14 @@ namespace WattWatcher
             builder.Services.AddSingleton<ElectricService>();
             builder.Services.AddScoped<AverageService>();
             builder.Services.AddScoped<HttpClient>();
+
+            // Properly initialize SmsService with configuration
+            builder.Services.AddSingleton<SmsService>(sp =>
+                new SmsService(
+                    "AC2f3034dfe8be1bdf9b31de034b702d47", // Your Account SID
+                    "5176e278c9b14e6c6c56e2d92b770548",                   // Your Auth Token
+                    "+14155238886"                       // Your WhatsApp-enabled Twilio number
+                ));
 
             builder.Services.AddBlazorBootstrap();
 
