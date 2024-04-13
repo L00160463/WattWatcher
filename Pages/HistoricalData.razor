@@ -14,9 +14,9 @@
                 <div class="col-md-3">
                     <select class="form-control" @bind="sortBy">
                         <option value="Date">Date</option>
-                        <option value="Amps">Amps (Ascending)</option>
-                        <option value="kWh">kWh (Ascending)</option>
-                        <option value="Watts">Watts (Ascending)</option>
+                        <option value="Amps">Amps (Descending)</option>
+                        <option value="kWh">kWh (Descending)</option>
+                        <option value="Watts">Watts (Descending)</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -90,16 +90,16 @@
         switch (sortBy)
         {
             case "Amps":
-                filteredData = filteredData.OrderBy(d => selectedCircuit == "1" ? d.Circuit1.AvgAmps : d.Circuit2.AvgAmps).ToList();
+                filteredData = filteredData.OrderByDescending(d => selectedCircuit == "1" ? d.Circuit1.AvgAmps : d.Circuit2.AvgAmps).ToList();
                 break;
             case "kWh":
-                filteredData = filteredData.OrderBy(d => selectedCircuit == "1" ? d.Circuit1.AvgKwh : d.Circuit2.AvgKwh).ToList();
+                filteredData = filteredData.OrderByDescending(d => selectedCircuit == "1" ? d.Circuit1.AvgKwh : d.Circuit2.AvgKwh).ToList();
                 break;
             case "Watts":
-                filteredData = filteredData.OrderBy(d => selectedCircuit == "1" ? d.Circuit1.AvgWatts : d.Circuit2.AvgWatts).ToList();
+                filteredData = filteredData.OrderByDescending(d => selectedCircuit == "1" ? d.Circuit1.AvgWatts : d.Circuit2.AvgWatts).ToList();
                 break;
             default:
-                filteredData = filteredData.OrderBy(d => d.Timestamp).ToList();
+                filteredData = filteredData.OrderByDescending(d => d.Timestamp).ToList();
                 break;
         }
     }
