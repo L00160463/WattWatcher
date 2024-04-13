@@ -1,23 +1,31 @@
-﻿@page "/Home"
-<h1 class="text-center mt-5 pt-3">Welcome to Your Smart Home Dashboard</h1> <!-- Added mt-5 for margin-top and pt-3 for padding-top -->
-<h3 class="text-center mt-2">Electricity Consumption This Week</h3> <!-- Added mt-2 for a smaller margin-top for the h3 -->
+﻿@page "/"
+@using WattWatcher.Data
+@inject UIDataService UIDataService
+
+<h1 class="text-center mt-5 pt-3">Welcome to Your Smart Home Dashboard</h1>
+<h3 class="text-center mt-2">Electricity Consumption This Week</h3>
 
 <div class="container mt-4">
-    <!-- Added mt-4 to ensure there is space between the container and the text above -->
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10 col-sm-12">
             <div class="card shadow-sm p-3 mb-5 bg-white rounded">
                 <div class="card-body">
-                    <ApexChart TItem="Order"
-                               Title="Electricity Consumption this Week">
-                        <ApexPointSeries TItem="Order"
-                                         Items="Orders"
-                                         SeriesType="SeriesType.Donut"
-                                         Name="Gross Value"
-                                         XValue="@(e => e.Day)"
-                                         YAggregate="@(e => e.Sum(e => e.GrossValue))"
-                                         OrderByDescending="e=>e.Y" />
-                    </ApexChart>
+                    @if (CircuitsData.Count > 0)
+                    {
+                        <ApexChart TItem="ElectricModel"
+                                   Title="Electricity Consumption this Week">
+                            <ApexPointSeries TItem="ElectricModel"
+                                             Items="@CircuitsData"
+                                             SeriesType="SeriesType.Donut"
+                                             Name="Amperage"
+                                             XValue="@(e => e.ID.ToString())"
+                                             YValue="@(e => (decimal)e.Amps)" />
+                        </ApexChart>
+                    }
+                    else
+                    {
+                        <p>No data available.</p>
+                    }
                 </div>
             </div>
         </div>
@@ -25,24 +33,24 @@
 </div>
 
 @code {
-    private List<Order> Orders { get; set; }
+    public List<ElectricModel> CircuitsData { get; set; } = new List<ElectricModel>();
 
     protected override void OnInitialized()
     {
-        Orders = new List<Order>
-        {
-            new Order { Day = "Kitchen",    GrossValue = 100 },
-            new Order { Day = "Living Room",   GrossValue = 65  },
-            new Order { Day = "Heating", GrossValue = 75  },
-            new Order { Day = "Garage",  GrossValue = 22  },
-            new Order { Day = "Master Bedroom",    GrossValue = 7   },
-
-        };
+        UIDataService.OnDataUpdated += DataUpdatedHandler;
     }
 
-    public class Order
+    private void DataUpdatedHandler(List<ElectricModel> data)
     {
-        public string Day { get; set; }
-        public decimal GrossValue { get; set; }
+        InvokeAsync(() =>
+        {
+            CircuitsData = data;
+            StateHasChanged(); // Re-render the component with the new data
+        });
+    }
+
+    public void Dispose()
+    {
+        UIDataService.OnDataUpdated -= DataUpdatedHandler; // Cleanup to avoid memory leaks
     }
 }

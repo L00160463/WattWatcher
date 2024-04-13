@@ -7,10 +7,10 @@ namespace WattWatcher.Data
     public class ElectricModel
     {
         [JsonProperty("Amps")]
-        public string Amps { get; set; }
+        public decimal Amps { get; set; }
 
         [JsonProperty("ID")]
-        public int Id { get; set; }
+        public int ID { get; set; }
 
         [JsonProperty("Kwh")]
         public double Kwh { get; set; }
