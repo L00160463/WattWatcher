@@ -9,6 +9,10 @@ namespace WattWatcher.Data
         [JsonProperty("Amps")]
         public decimal Amps { get; set; }
 
+        [JsonProperty("CircuitName")]
+        public string CircuitName { get; set; }
+
+
         [JsonProperty("ID")]
         public int ID { get; set; }
 

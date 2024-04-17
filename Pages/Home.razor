@@ -3,7 +3,7 @@
 @inject UIDataService UIDataService
 
 <h1 class="text-center mt-5 pt-3">Welcome to Your Smart Home Dashboard</h1>
-<h3 class="text-center mt-2">Electricity Consumption This Week</h3>
+<h3 class="text-center mt-2">View Your Electricity Consumption</h3>
 
 <div class="container mt-4">
     <div class="row justify-content-center">
@@ -13,18 +13,21 @@
                     @if (CircuitsData.Count > 0)
                     {
                         <ApexChart TItem="ElectricModel"
-                                   Title="Electricity Consumption this Week">
+                                   Title="Electricity Consumption"
+                                   Options="options"
+                                   @key="@updateKey">
+                            <!-- Add key attribute for component re-render -->
                             <ApexPointSeries TItem="ElectricModel"
                                              Items="@CircuitsData"
                                              SeriesType="SeriesType.Donut"
                                              Name="Amperage"
-                                             XValue="@(e => e.ID.ToString())"
-                                             YValue="@(e => (decimal)e.Amps)" />
+                                             XValue="@(e => e.CircuitName)"
+                                             YValue="@(e => e.Amps)" />
                         </ApexChart>
                     }
                     else
                     {
-                        <p>No data available.</p>
+                        <p>Loading Data...</p>
                     }
                 </div>
             </div>
@@ -34,10 +37,35 @@
 
 @code {
     public List<ElectricModel> CircuitsData { get; set; } = new List<ElectricModel>();
+    private int updateKey = 0;
+    private ApexChartOptions<ElectricModel> options { get; set; } = new();
+
+    public decimal TotalAmperage { get; set; } = 0;
 
     protected override void OnInitialized()
     {
         UIDataService.OnDataUpdated += DataUpdatedHandler;
+
+        options.PlotOptions = new PlotOptions
+            {
+                Pie = new PlotOptionsPie
+                {
+                    Donut = new PlotOptionsDonut
+                    {
+                        Labels = new DonutLabels
+                        {
+                            Total = new DonutLabelTotal
+                            {
+                                FontSize = "24px",
+                                Color = "#D807B8",
+                                Formatter = @"function (w) {
+                                return w.globals.seriesTotals.reduce((a, b) => { return a + b; }, 0).toFixed(2) + ' Amps';
+                            }"
+                            }
+                        }
+                    }
+                }
+            };
     }
 
     private void DataUpdatedHandler(List<ElectricModel> data)
@@ -45,6 +73,8 @@
         InvokeAsync(() =>
         {
             CircuitsData = data;
+            TotalAmperage = CircuitsData.Sum(e => e.Amps);
+            updateKey++;  // Increment key to force re-render
             StateHasChanged(); // Re-render the component with the new data
         });
     }

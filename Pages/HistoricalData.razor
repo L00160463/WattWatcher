@@ -1,6 +1,6 @@
 ﻿@page "/Historical1"
 @using WattWatcher.Data
-@inject AverageService AverageService
+@inject HistoricalService AverageService
 
 <h3 class="mb-4 text-center">Historical Data</h3>
 
@@ -45,7 +45,7 @@
                         @foreach (var item in filteredData)
                         {
                             <tr>
-                                <td>@item.Timestamp.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                                <td>@item.Timestamp.ToString("dddd-MM-yyyy")</td>
                                 <td>@item.Circuit1.AvgAmps</td>
                                 <td>@item.Circuit1.AvgKwh</td>
                                 <td>@item.Circuit1.AvgWatts</td>
@@ -57,7 +57,7 @@
                         @foreach (var item in filteredData)
                         {
                             <tr>
-                                <td>@item.Timestamp.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                                <td>@item.Timestamp.ToString("dddd-MM-yyyy")</td>
                                 <td>@item.Circuit2.AvgAmps</td>
                                 <td>@item.Circuit2.AvgKwh</td>
                                 <td>@item.Circuit2.AvgWatts</td>

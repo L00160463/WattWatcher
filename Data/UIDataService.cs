@@ -1,46 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using WattWatcher.Data;
 
-namespace WattWatcher.Data
+public class UIDataService
 {
-    public class UIDataService
+    private readonly HttpClient _httpClient = new HttpClient();
+    private readonly string _baseUri = "https://wattwatcher-pro-default-rtdb.firebaseio.com/";
+    private Timer _timer;
+    public event Action<List<ElectricModel>> OnDataUpdated;
+
+    public UIDataService()
     {
-        private readonly HttpClient _httpClient = new HttpClient();
-        private readonly string _baseUri = "https://wattwatcher-pro-default-rtdb.firebaseio.com/";
-        public event Action<List<ElectricModel>> OnDataUpdated;
+        _timer = new Timer(Callback, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+    }
 
-        public UIDataService()
-        {
-            FetchDataPeriodically(); // Start fetching data immediately upon initialization
-        }
+    private async void Callback(object state)
+    {
+        await FetchDataPeriodically();
+    }
 
-        public async void FetchDataPeriodically()
+    private async Task FetchDataPeriodically()
+    {
+        var circuits = new List<ElectricModel>();
+        try
         {
-            while (true) // Continuously fetch data
+            for (int i = 1; i <= 4; i++)
             {
-                var circuits = new List<ElectricModel>();
-                try
+                string response = await _httpClient.GetStringAsync($"{_baseUri}circuit{i}.json");
+                var data = JsonConvert.DeserializeObject<ElectricModel>(response);
+                if (data != null)
                 {
-                    for (int i = 1; i <= 4; i++)
-                    {
-                        string response = await _httpClient.GetStringAsync($"{_baseUri}circuit{i}.json");
-                        var data = JsonConvert.DeserializeObject<ElectricModel>(response);
-                        if (data != null)
-                        {
-                            circuits.Add(data);
-                        }
-                    }
-                    OnDataUpdated?.Invoke(circuits); // Invoke the updated data event
+                    circuits.Add(data);
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error in fetching data: {ex.Message}");
-                }
-                await Task.Delay(1000); // Wait for 10 seconds before fetching the data again
             }
+            OnDataUpdated?.Invoke(circuits);
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in fetching data: {ex.Message}");
+            // Consider what to do in case of an error. Maybe invoke with null or previous good data?
+        }
+    }
+
+    public void StopTimer()
+    {
+        _timer?.Change(Timeout.Infinite, 0);
+        _timer?.Dispose();
     }
 }
