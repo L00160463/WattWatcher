@@ -1,22 +1,34 @@
-﻿@page "/Home"
-<h1 class="text-center mt-5 pt-3">Welcome to Your Smart Home Dashboard</h1> <!-- Added mt-5 for margin-top and pt-3 for padding-top -->
-<h3 class="text-center mt-2">Total Live Electricity Consumption</h3> <!-- Added mt-2 for a smaller margin-top for the h3 -->
+﻿@page "/"
+@using WattWatcher.Data
+@inject UIDataService UIDataService
+
+<h1 class="text-center mt-5 pt-3">Welcome to Your Smart Home Dashboard</h1>
+<h3 class="text-center mt-2">View Your Electricity Consumption</h3>
 
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10 col-sm-12">
             <div class="card shadow-sm p-3 mb-5 bg-white rounded">
                 <div class="card-body">
-                    <ApexChart TItem="Order"
-                               Title="Electricity Consumption Live">
-                        <ApexPointSeries TItem="Order"
-                                         Items="Orders"
-                                         SeriesType="SeriesType.Donut"
-                                         Name="Gross Value"
-                                         XValue="@(e => e.Circuit)"
-                                         YAggregate="@(e => e.Sum(e => e.GrossValue ))"
-                                         OrderByDescending="e=>e.Y" />
-                    </ApexChart>
+                    @if (CircuitsData.Count > 0)
+                    {
+                        <ApexChart TItem="ElectricModel"
+                                   Title="Electricity Consumption"
+                                   Options="options"
+                                   @key="@updateKey">
+                            <!-- Add key attribute for component re-render -->
+                            <ApexPointSeries TItem="ElectricModel"
+                                             Items="@CircuitsData"
+                                             SeriesType="SeriesType.Donut"
+                                             Name="Amperage"
+                                             XValue="@(e => e.CircuitName)"
+                                             YValue="@(e => e.Amps)" />
+                        </ApexChart>
+                    }
+                    else
+                    {
+                        <p>Loading Data...</p>
+                    }
                 </div>
             </div>
         </div>
@@ -24,23 +36,51 @@
 </div>
 
 @code {
-    private List<Order> Orders { get; set; }
+    public List<ElectricModel> CircuitsData { get; set; } = new List<ElectricModel>();
+    private int updateKey = 0;
+    private ApexChartOptions<ElectricModel> options { get; set; } = new();
+
+    public decimal TotalAmperage { get; set; } = 0;
 
     protected override void OnInitialized()
     {
-        Orders = new List<Order>
-        {
-            new Order { Circuit = "Kitchen",    GrossValue = 100 },
-            new Order { Circuit = "Living Room",   GrossValue = 65  },
-            new Order { Circuit = "Heating", GrossValue = 75  },
-            new Order { Circuit = "Garage",  GrossValue = 22  },
+        UIDataService.OnDataUpdated += DataUpdatedHandler;
 
-        };
+        options.PlotOptions = new PlotOptions
+            {
+                Pie = new PlotOptionsPie
+                {
+                    Donut = new PlotOptionsDonut
+                    {
+                        Labels = new DonutLabels
+                        {
+                            Total = new DonutLabelTotal
+                            {
+                                FontSize = "24px",
+                                Color = "#D807B8",
+                                Formatter = @"function (w) {
+                                return w.globals.seriesTotals.reduce((a, b) => { return a + b; }, 0).toFixed(2) + ' Amps';
+                            }"
+                            }
+                        }
+                    }
+                }
+            };
     }
 
-    public class Order
+    private void DataUpdatedHandler(List<ElectricModel> data)
     {
-        public string Circuit { get; set; }
-        public decimal GrossValue { get; set; }
+        InvokeAsync(() =>
+        {
+            CircuitsData = data;
+            TotalAmperage = CircuitsData.Sum(e => e.Amps);
+            updateKey++;  // Increment key to force re-render
+            StateHasChanged(); // Re-render the component with the new data
+        });
+    }
+
+    public void Dispose()
+    {
+        UIDataService.OnDataUpdated -= DataUpdatedHandler; // Cleanup to avoid memory leaks
     }
 }

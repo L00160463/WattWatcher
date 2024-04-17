@@ -24,8 +24,10 @@ namespace WattWatcher
 #endif
 
             builder.Services.AddSingleton<ElectricService>();
-            builder.Services.AddScoped<AverageService>();
+            builder.Services.AddScoped<HistoricalService>();
             builder.Services.AddScoped<HttpClient>();
+            builder.Services.AddScoped<UIDataService>();
+            builder.Services.AddScoped<AverageService>();
 
             // Properly initialize SmsService with configuration
             builder.Services.AddSingleton<SmsService>(sp =>
