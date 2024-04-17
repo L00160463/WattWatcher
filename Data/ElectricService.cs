@@ -18,6 +18,9 @@ public class ElectricService
         {
             await FetchDataPeriodically("https://wattwatcher-pro-default-rtdb.firebaseio.com/circuit1.json", 1);
             await FetchDataPeriodically("https://wattwatcher-pro-default-rtdb.firebaseio.com/circuit2.json", 2);
+            await FetchDataPeriodically("https://wattwatcher-pro-default-rtdb.firebaseio.com/Circuit3.json", 3);
+            await FetchDataPeriodically("https://wattwatcher-pro-default-rtdb.firebaseio.com/Circuit4.json", 4);
+
         }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
     }
 

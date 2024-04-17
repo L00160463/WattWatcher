@@ -1,21 +1,20 @@
 ﻿@page "/Home"
 <h1 class="text-center mt-5 pt-3">Welcome to Your Smart Home Dashboard</h1> <!-- Added mt-5 for margin-top and pt-3 for padding-top -->
-<h3 class="text-center mt-2">Electricity Consumption This Week</h3> <!-- Added mt-2 for a smaller margin-top for the h3 -->
+<h3 class="text-center mt-2">Total Live Electricity Consumption</h3> <!-- Added mt-2 for a smaller margin-top for the h3 -->
 
 <div class="container mt-4">
-    <!-- Added mt-4 to ensure there is space between the container and the text above -->
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10 col-sm-12">
             <div class="card shadow-sm p-3 mb-5 bg-white rounded">
                 <div class="card-body">
                     <ApexChart TItem="Order"
-                               Title="Electricity Consumption this Week">
+                               Title="Electricity Consumption Live">
                         <ApexPointSeries TItem="Order"
                                          Items="Orders"
                                          SeriesType="SeriesType.Donut"
                                          Name="Gross Value"
-                                         XValue="@(e => e.Day)"
-                                         YAggregate="@(e => e.Sum(e => e.GrossValue))"
+                                         XValue="@(e => e.Circuit)"
+                                         YAggregate="@(e => e.Sum(e => e.GrossValue ))"
                                          OrderByDescending="e=>e.Y" />
                     </ApexChart>
                 </div>
@@ -31,18 +30,17 @@
     {
         Orders = new List<Order>
         {
-            new Order { Day = "Kitchen",    GrossValue = 100 },
-            new Order { Day = "Living Room",   GrossValue = 65  },
-            new Order { Day = "Heating", GrossValue = 75  },
-            new Order { Day = "Garage",  GrossValue = 22  },
-            new Order { Day = "Master Bedroom",    GrossValue = 7   },
+            new Order { Circuit = "Kitchen",    GrossValue = 100 },
+            new Order { Circuit = "Living Room",   GrossValue = 65  },
+            new Order { Circuit = "Heating", GrossValue = 75  },
+            new Order { Circuit = "Garage",  GrossValue = 22  },
 
         };
     }
 
     public class Order
     {
-        public string Day { get; set; }
+        public string Circuit { get; set; }
         public decimal GrossValue { get; set; }
     }
 }
