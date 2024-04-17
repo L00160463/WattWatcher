@@ -3,15 +3,17 @@
 @inject ElectricService ElectricService
 @inject AverageService AverageService
 
-<h3 class="mb-4 text-center">Circuit 1 Details</h3>
+<h3 class="mb-4 text-center">Living Room Circuit Details</h3>
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-10 col-md-12">
+            <!-- Navigation Buttons for Week Control -->
+           
             <!-- Bar Chart for Daily Average Amperage -->
             <div class="card shadow-sm p-3 mb-4 bg-white rounded">
                 <div class="card-body">
-                    <h4 class="text-center mb-4">Average Amperage This Week (Circuit 1)</h4>
+                    <h4 class="text-center mb-4">Average Amperage This Week (Living Room)</h4>
                     @if (chartModels != null && chartModels.Any())
                     {
                         <ApexChart TItem="ChartModel"
@@ -23,12 +25,19 @@
                                              YValue="@(e => e.Value)"
                                              SeriesType="SeriesType.Bar" />
                         </ApexChart>
+
+                     
                     }
                     else
                     {
                         <p>Loading data...</p>
                     }
                 </div>
+
+            </div>
+            <div class="text-center mb-3">
+                <button class="btn btn-primary mr-2" @onclick="()=> GoToPreviousWeek()">Previous Week</button>
+                <button class="btn btn-primary" @onclick="()=> GoToNextWeek()">Next Week</button>
             </div>
 
             <!-- Live Data Display -->
@@ -81,6 +90,7 @@
         </div>
     </div>
 </div>
+
 @code {
     private List<ChartModel> chartModels = new List<ChartModel>();
     public ElectricModel Circuit1Data { get; set; }
@@ -100,6 +110,8 @@
                 .ToList();
         }
     }
+
+   
 
     private void UpdateData(int circuitId, ElectricModel newData)
     {
@@ -122,5 +134,15 @@
     {
         public string Date { get; set; }
         public decimal Value { get; set; }
+    }
+
+    private void GoToPreviousWeek()
+    {
+        // This function will adjust the dates and reload data for the previous week
+    }
+
+    private void GoToNextWeek()
+    {
+        // This function will adjust the dates and reload data for the next week
     }
 }

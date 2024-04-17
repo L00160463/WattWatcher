@@ -16,7 +16,6 @@
                                    Title="Electricity Consumption"
                                    Options="options"
                                    @key="@updateKey">
-                            <!-- Add key attribute for component re-render -->
                             <ApexPointSeries TItem="ElectricModel"
                                              Items="@CircuitsData"
                                              SeriesType="SeriesType.Donut"
@@ -31,9 +30,24 @@
                     }
                 </div>
             </div>
+
+            <!-- Set Limit Card -->
+            <div class="card shadow-sm p-3 mb-5 bg-white rounded">
+                <div class="card-body">
+                    <h5 class="text-center mb-4">Set a Limit on Live Total Amperage</h5>
+                    <div class="input-group mb-3">
+                        <input type="number" class="form-control" placeholder="Enter amperage limit" aria-label="Amperage limit" >
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" @onclick="SetLimit">Set Limit</button>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 
 @code {
     public List<ElectricModel> CircuitsData { get; set; } = new List<ElectricModel>();
@@ -82,5 +96,10 @@
     public void Dispose()
     {
         UIDataService.OnDataUpdated -= DataUpdatedHandler; // Cleanup to avoid memory leaks
+    }
+
+    private void SetLimit()
+    {
+        
     }
 }
