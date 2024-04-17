@@ -32,9 +32,9 @@ namespace WattWatcher
             // Properly initialize SmsService with configuration
             builder.Services.AddSingleton<SmsService>(sp =>
                 new SmsService(
-                    "AC2f3034dfe8be1bdf9b31de034b702d47", // Your Account SID
-                    "5176e278c9b14e6c6c56e2d92b770548",                   // Your Auth Token
-                    "+14155238886"                       // Your WhatsApp-enabled Twilio number
+                    "AC2f3034dfe8be1bdf9b31de034b702d47", // Account SID
+                    "5176e278c9b14e6c6c56e2d92b770548",                   // Auth Token
+                    "+14155238886"                       //WhatsApp-enabled Twilio number
                 ));
 
             builder.Services.AddBlazorBootstrap();

@@ -3,7 +3,7 @@
 @inject ElectricService ElectricService
 @inject AverageService AverageService
 
-<h3 class="mb-4 text-center">Circuit 2 Details</h3>
+<h3 class="mb-4 text-center">Garage Circuit Details</h3>
 
 <div class="container">
     <div class="row justify-content-center">
@@ -11,7 +11,7 @@
             <!-- Bar Chart for Daily Average Amperage -->
             <div class="card shadow-sm p-3 mb-4 bg-white rounded">
                 <div class="card-body">
-                    <h4 class="text-center mb-4">Average Amperage This Week (Circuit 2)</h4>
+                    <h4 class="text-center mb-4">Average Amperage This Week (Garage)</h4>
                     @if (chartModels != null && chartModels.Any())
                     {
                         <ApexChart TItem="ChartModel"
@@ -20,7 +20,7 @@
                                              Items="chartModels"
                                              Name="Amperage"
                                              XValue="@(e => e.Date)"
-                                             YValue="@(e => e.Value)"
+                                             YValue="@(e => e.AvgAmps)"
                                              SeriesType="SeriesType.Bar" />
                         </ApexChart>
                     }
@@ -29,6 +29,11 @@
                         <p>Loading data...</p>
                     }
                 </div>
+            </div>
+
+            <div class="text-center mb-3">
+                <button class="btn btn-primary mr-2" @onclick="GoToPreviousWeek">Previous Week</button>
+                <button class="btn btn-primary" @onclick="GoToNextWeek">Next Week</button>
             </div>
 
             <!-- Live Data Display -->
@@ -64,9 +69,9 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Energy Usage This Week: <strong>450 kWh</strong></li>
-                        <li class="list-group-item">Cost This Week: <strong>€120.00</strong></li>
-                        <li class="list-group-item">Average Daily Use: <strong>15 kWh</strong></li>
+                        <li class="list-group-item">Energy Usage This Week: <strong>@totalKwhUsage.ToString("N2") kWh</strong></li>
+                        <li class="list-group-item">Cost This Week: <strong>€@totalCost.ToString("N2")</strong></li>
+                        <li class="list-group-item">Average Daily Use: <strong>@averageDailyKwh.ToString("N2") kWh</strong></li>
                         <li class="list-group-item">
                             Recommended Actions:
                             <ul>
@@ -81,23 +86,37 @@
         </div>
     </div>
 </div>
+
 @code {
     private List<ChartModel> chartModels = new List<ChartModel>();
     public ElectricModel Circuit2Data { get; set; }
+    private decimal totalKwhUsage = 0;
+    private decimal totalCost = 0;
+    private decimal averageDailyKwh = 0;
 
     protected override async Task OnInitializedAsync()
     {
         ElectricService.OnDataUpdated += UpdateData;
+        await LoadChartData();
+    }
+
+    private async Task LoadChartData()
+    {
         var averages = await AverageService.GetDailyAveragesAsync();
         if (averages != null)
         {
             chartModels = averages.Select(kvp => new ChartModel
                 {
                     Date = kvp.Key.ToString("ddd d/MM/yy"),
-                    Value = (decimal)kvp.Value.AvgAmpsCircuit2  // Cast double to decimal
+                    AvgAmps = (decimal)kvp.Value.AvgAmpsCircuit2,  // Cast double to decimal for Amps
+                    AvgKwh = (decimal)kvp.Value.AvgKwhCircuit2    // Cast double to decimal for kWh
                 })
-                .OrderBy(model => ((int)DateTime.ParseExact(model.Date, "ddd d/MM/yy", null).DayOfWeek + 6) % 7)  // Adjust for Monday start
-                .ToList();
+            .OrderBy(model => ((int)DateTime.ParseExact(model.Date, "ddd d/MM/yy", null).DayOfWeek + 6) % 7)  // Adjust for Monday start
+            .ToList();
+
+            totalKwhUsage = chartModels.Sum(x => x.AvgKwh);  // Sum of AvgKwh for the week
+            totalCost = totalKwhUsage * 0.35m;  // Example electricity cost €0.35 per kWh
+            averageDailyKwh = totalKwhUsage / chartModels.Count;  // Average daily kWh usage
         }
     }
 
@@ -105,12 +124,22 @@
     {
         InvokeAsync(() =>
         {
-            if (circuitId == 2) // Only update if the data is for Circuit 1
+            if (circuitId == 2)  // Only update if the data is for Circuit 2
             {
                 Circuit2Data = newData;
-                StateHasChanged(); // Re-render the component with the new data
+                StateHasChanged();  // Re-render the component with the new data
             }
         });
+    }
+
+    private void GoToPreviousWeek()
+    {
+        // Adjust the dates and reload data for the previous week
+    }
+
+    private void GoToNextWeek()
+    {
+        // Adjust the dates and reload data for the next week
     }
 
     public void Dispose()
@@ -121,6 +150,7 @@
     public class ChartModel
     {
         public string Date { get; set; }
-        public decimal Value { get; set; }
+        public decimal AvgAmps { get; set; }
+        public decimal AvgKwh { get; set; }
     }
 }

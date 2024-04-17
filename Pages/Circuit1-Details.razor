@@ -8,8 +8,6 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-10 col-md-12">
-            <!-- Navigation Buttons for Week Control -->
-           
             <!-- Bar Chart for Daily Average Amperage -->
             <div class="card shadow-sm p-3 mb-4 bg-white rounded">
                 <div class="card-body">
@@ -22,22 +20,20 @@
                                              Items="chartModels"
                                              Name="Amperage"
                                              XValue="@(e => e.Date)"
-                                             YValue="@(e => e.Value)"
+                                             YValue="@(e => e.AvgAmps)"
                                              SeriesType="SeriesType.Bar" />
                         </ApexChart>
-
-                     
                     }
                     else
                     {
                         <p>Loading data...</p>
                     }
                 </div>
-
             </div>
+
             <div class="text-center mb-3">
-                <button class="btn btn-primary mr-2" @onclick="()=> GoToPreviousWeek()">Previous Week</button>
-                <button class="btn btn-primary" @onclick="()=> GoToNextWeek()">Next Week</button>
+                <button class="btn btn-primary mr-2" @onclick="GoToPreviousWeek">Previous Week</button>
+                <button class="btn btn-primary" @onclick="GoToNextWeek">Next Week</button>
             </div>
 
             <!-- Live Data Display -->
@@ -73,9 +69,9 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Energy Usage This Week: <strong>450 kWh</strong></li>
-                        <li class="list-group-item">Cost This Week: <strong>€120.00</strong></li>
-                        <li class="list-group-item">Average Daily Use: <strong>15 kWh</strong></li>
+                        <li class="list-group-item">Energy Usage This Week: <strong>@totalKwhUsage kWh</strong></li>
+                        <li class="list-group-item">Cost This Week: <strong>€@totalCost.ToString("N2")</strong></li>
+                        <li class="list-group-item">Average Daily Use: <strong>@averageDailyKwh.ToString("N2") kWh</strong></li>
                         <li class="list-group-item">
                             Recommended Actions:
                             <ul>
@@ -94,35 +90,59 @@
 @code {
     private List<ChartModel> chartModels = new List<ChartModel>();
     public ElectricModel Circuit1Data { get; set; }
+    private decimal totalKwhUsage = 0;
+    private decimal totalCost = 0;
+    private decimal averageDailyKwh = 0;
 
     protected override async Task OnInitializedAsync()
     {
         ElectricService.OnDataUpdated += UpdateData;
+        await LoadChartData();
+    }
+
+    private async Task LoadChartData()
+    {
         var averages = await AverageService.GetDailyAveragesAsync();
         if (averages != null)
         {
             chartModels = averages.Select(kvp => new ChartModel
                 {
                     Date = kvp.Key.ToString("ddd d/MM/yy"),
-                    Value = (decimal)kvp.Value.AvgAmpsCircuit1  // Cast double to decimal
+                    AvgAmps = (decimal)kvp.Value.AvgAmpsCircuit1,  // Cast double to decimal
+                    AvgKwh = (decimal)kvp.Value.AvgKwhCircuit1  // Cast double to decimal
                 })
-                .OrderBy(model => ((int)DateTime.ParseExact(model.Date, "ddd d/MM/yy", null).DayOfWeek + 6) % 7)  // Adjust for Monday start
-                .ToList();
+            .OrderBy(model => ((int)DateTime.ParseExact(model.Date, "ddd d/MM/yy", null).DayOfWeek + 6) % 7)  // Adjust for Monday start
+            .ToList();
+
+            // Calculate summary data
+            totalKwhUsage = chartModels.Sum(x => x.AvgKwh);  // This is a simplification, calculate based on actual energy usage data
+            totalCost = totalKwhUsage * 0.35m;  // Example electricity cost €0.35 per kWh
+            averageDailyKwh = totalKwhUsage / chartModels.Count;
         }
     }
-
-   
 
     private void UpdateData(int circuitId, ElectricModel newData)
     {
         InvokeAsync(() =>
         {
-            if (circuitId == 1) // Only update if the data is for Circuit 1
+            if (circuitId == 1)  // Only update if the data is for Circuit 1
             {
                 Circuit1Data = newData;
-                StateHasChanged(); // Re-render the component with the new data
+                StateHasChanged();  // Re-render the component with the new data
             }
         });
+    }
+
+    private void GoToPreviousWeek()
+    {
+        // Adjust the dates and reload data for the previous week
+        // This function will need actual implementation details about date management
+    }
+
+    private void GoToNextWeek()
+    {
+        // Adjust the dates and reload data for the next week
+        // This function will need actual implementation details about date management
     }
 
     public void Dispose()
@@ -133,16 +153,9 @@
     public class ChartModel
     {
         public string Date { get; set; }
-        public decimal Value { get; set; }
-    }
+        public decimal AvgAmps { get; set; }
+        public decimal AvgKwh { get; set; }
 
-    private void GoToPreviousWeek()
-    {
-        // This function will adjust the dates and reload data for the previous week
-    }
-
-    private void GoToNextWeek()
-    {
-        // This function will adjust the dates and reload data for the next week
+        
     }
 }
