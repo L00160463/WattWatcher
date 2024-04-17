@@ -1,25 +1,33 @@
 ﻿@page "/circuit2"
 @using WattWatcher.Data
 @inject ElectricService ElectricService
+@inject AverageService AverageService
 
 <h3 class="mb-4 text-center">Circuit 2 Details</h3>
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-10 col-md-12">
-            <!-- Bar Chart for Weekly Gross Value -->
+            <!-- Bar Chart for Daily Average Amperage -->
             <div class="card shadow-sm p-3 mb-4 bg-white rounded">
                 <div class="card-body">
-                    <h4 class="text-center mb-4">Weekly Gross Value</h4>
-                    <ApexChart TItem="Order"
-                               Title="Weekly Sales Chart">
-                        <ApexPointSeries TItem="Order"
-                                         Items="Orders"
-                                         Name="Gross Value"
-                                         XValue="@(e => e.Day)"
-                                         YAggregate="@(e => e.Sum(e => e.GrossValue))"
-                                         SeriesType="SeriesType.Bar" />
-                    </ApexChart>
+                    <h4 class="text-center mb-4">Average Amperage This Week (Circuit 2)</h4>
+                    @if (chartModels != null && chartModels.Any())
+                    {
+                        <ApexChart TItem="ChartModel"
+                                   Title="Average Amperage">
+                            <ApexPointSeries TItem="ChartModel"
+                                             Items="chartModels"
+                                             Name="Amperage"
+                                             XValue="@(e => e.Date)"
+                                             YValue="@(e => e.Value)"
+                                             SeriesType="SeriesType.Bar" />
+                        </ApexChart>
+                    }
+                    else
+                    {
+                        <p>Loading data...</p>
+                    }
                 </div>
             </div>
 
@@ -56,8 +64,8 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Energy Usage This Month: <strong>450 kWh</strong></li>
-                        <li class="list-group-item">Cost This Month: <strong>€120.00</strong></li>
+                        <li class="list-group-item">Energy Usage This Week: <strong>450 kWh</strong></li>
+                        <li class="list-group-item">Cost This Week: <strong>€120.00</strong></li>
                         <li class="list-group-item">Average Daily Use: <strong>15 kWh</strong></li>
                         <li class="list-group-item">
                             Recommended Actions:
@@ -73,40 +81,35 @@
         </div>
     </div>
 </div>
-
 @code {
-    private List<Order> Orders { get; set; }
+    private List<ChartModel> chartModels = new List<ChartModel>();
     public ElectricModel Circuit2Data { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         ElectricService.OnDataUpdated += UpdateData;
-        InitializeOrders();
-    }
-
-    private void InitializeOrders()
-    {
-        Orders = new List<Order>
+        var averages = await AverageService.GetDailyAveragesAsync();
+        if (averages != null)
         {
-            new Order { Day = "Monday", GrossValue = 100 },
-            new Order { Day = "Tuesday", GrossValue = 65 },
-            new Order { Day = "Wednesday", GrossValue = 75 },
-            new Order { Day = "Thursday", GrossValue = 22 },
-            new Order { Day = "Friday", GrossValue = 7 },
-            new Order { Day = "Saturday", GrossValue = 54 },
-            new Order { Day = "Sunday", GrossValue = 11 }
-        };
+            chartModels = averages.Select(kvp => new ChartModel
+                {
+                    Date = kvp.Key.ToString("ddd d/MM/yy"),
+                    Value = (decimal)kvp.Value.AvgAmpsCircuit2  // Cast double to decimal
+                })
+                .OrderBy(model => ((int)DateTime.ParseExact(model.Date, "ddd d/MM/yy", null).DayOfWeek + 6) % 7)  // Adjust for Monday start
+                .ToList();
+        }
     }
 
     private void UpdateData(int circuitId, ElectricModel newData)
     {
         InvokeAsync(() =>
         {
-            if (circuitId == 2)
+            if (circuitId == 2) // Only update if the data is for Circuit 1
             {
                 Circuit2Data = newData;
+                StateHasChanged(); // Re-render the component with the new data
             }
-            StateHasChanged();
         });
     }
 
@@ -115,9 +118,9 @@
         ElectricService.OnDataUpdated -= UpdateData;
     }
 
-    public class Order
+    public class ChartModel
     {
-        public string Day { get; set; }
-        public decimal GrossValue { get; set; }
+        public string Date { get; set; }
+        public decimal Value { get; set; }
     }
 }
