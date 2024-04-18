@@ -9,11 +9,14 @@
         try
         {
             SmsService.SendSms("+353871146998", "Warning! Your electricity usage is at 90% of your set limit for this month. Consider reducing usage to avoid extra charges.");
-            
+
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error sending SMS: {ex.Message}");
         }
+
+        // This line is added to satisfy the compiler warning
+        await Task.CompletedTask;
     }
 }

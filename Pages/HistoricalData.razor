@@ -30,42 +30,44 @@
                 </div>
             </div>
 
-            <table class="table">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Date</th>
-                        <th>Amps (A)</th>
-                        <th>kWh</th>
-                        <th>Watts (W)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (selectedCircuit == "1")
-                    {
-                        @foreach (var item in filteredData)
+            <div class="table-responsive">
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Amps (A)</th>
+                            <th>kWh</th>
+                            <th>Watts (W)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (selectedCircuit == "1")
                         {
-                            <tr>
-                                <td>@item.Timestamp.ToString("dddd-MM-yyyy")</td>
-                                <td>@item.Circuit1.AvgAmps</td>
-                                <td>@item.Circuit1.AvgKwh</td>
-                                <td>@item.Circuit1.AvgWatts</td>
-                            </tr>
+                            @foreach (var item in filteredData)
+                            {
+                                <tr>
+                                    <td>@item.Timestamp.ToString("ddd d/MM/yy")</td>
+                                    <td>@item.Circuit1.AvgAmps</td>
+                                    <td>@item.Circuit1.AvgKwh</td>
+                                    <td>@item.Circuit1.AvgWatts</td>
+                                </tr>
+                            }
                         }
-                    }
-                    else
-                    {
-                        @foreach (var item in filteredData)
+                        else
                         {
-                            <tr>
-                                <td>@item.Timestamp.ToString("dddd-MM-yyyy")</td>
-                                <td>@item.Circuit2.AvgAmps</td>
-                                <td>@item.Circuit2.AvgKwh</td>
-                                <td>@item.Circuit2.AvgWatts</td>
-                            </tr>
+                            @foreach (var item in filteredData)
+                            {
+                                <tr>
+                                    <td>@item.Timestamp.ToString("ddd d/MM/yy")</td>
+                                    <td>@item.Circuit2.AvgAmps</td>
+                                    <td>@item.Circuit2.AvgKwh</td>
+                                    <td>@item.Circuit2.AvgWatts</td>
+                                </tr>
+                            }
                         }
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
