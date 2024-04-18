@@ -2,6 +2,7 @@
 @using WattWatcher.Data
 @inject ElectricService ElectricService
 @inject AverageService AverageService
+@inject NavigationManager NavigationManager
 
 <h3 class="mb-4 text-center">Living Room Circuit Details</h3>
 
@@ -62,6 +63,21 @@
                 </div>
             }
 
+            <!-- Set Limit Form -->
+            <div class="card shadow-sm p-3 mb-4 bg-white rounded">
+                <div class="card-body">
+                    <h5 class="text-center mb-4">Set Amperage Limit (Amps)</h5>
+                    <form>
+                        <div class="input-group mb-3">
+                            <input type="number" class="form-control" placeholder="Enter new limit" aria-label="New amperage limit">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" @onclick="SetLimit">Set Limit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Summary and Recommendations -->
             <div class="card mb-4">
                 <div class="card-header">
@@ -69,7 +85,7 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Energy Usage This Week: <strong>@totalKwhUsage kWh</strong></li>
+                        <li class="list-group-item">Energy Usage This Week: <strong>@totalKwhUsage.ToString("N2") kWh</strong></li>
                         <li class="list-group-item">Cost This Week: <strong>€@totalCost.ToString("N2")</strong></li>
                         <li class="list-group-item">Average Daily Use: <strong>@averageDailyKwh.ToString("N2") kWh</strong></li>
                         <li class="list-group-item">
@@ -108,15 +124,14 @@
             chartModels = averages.Select(kvp => new ChartModel
                 {
                     Date = kvp.Key.ToString("ddd d/MM/yy"),
-                    AvgAmps = (decimal)kvp.Value.AvgAmpsCircuit1,  // Cast double to decimal
-                    AvgKwh = (decimal)kvp.Value.AvgKwhCircuit1  // Cast double to decimal
+                    AvgAmps = (decimal)kvp.Value.AvgAmpsCircuit1,
+                    AvgKwh = (decimal)kvp.Value.AvgKwhCircuit1
                 })
-            .OrderBy(model => ((int)DateTime.ParseExact(model.Date, "ddd d/MM/yy", null).DayOfWeek + 6) % 7)  // Adjust for Monday start
+            .OrderBy(model => ((int)DateTime.ParseExact(model.Date, "ddd d/MM/yy", null).DayOfWeek + 6) % 7)
             .ToList();
 
-            // Calculate summary data
-            totalKwhUsage = chartModels.Sum(x => x.AvgKwh);  // This is a simplification, calculate based on actual energy usage data
-            totalCost = totalKwhUsage * 0.35m;  // Example electricity cost €0.35 per kWh
+            totalKwhUsage = chartModels.Sum(x => x.AvgKwh);
+            totalCost = totalKwhUsage * 0.35m;
             averageDailyKwh = totalKwhUsage / chartModels.Count;
         }
     }
@@ -125,24 +140,27 @@
     {
         InvokeAsync(() =>
         {
-            if (circuitId == 1)  // Only update if the data is for Circuit 1
+            if (circuitId == 1)
             {
                 Circuit1Data = newData;
-                StateHasChanged();  // Re-render the component with the new data
+                StateHasChanged();
             }
         });
     }
 
     private void GoToPreviousWeek()
     {
-        // Adjust the dates and reload data for the previous week
-        // This function will need actual implementation details about date management
+        // Logic to navigate to the previous week's data
     }
 
     private void GoToNextWeek()
     {
-        // Adjust the dates and reload data for the next week
-        // This function will need actual implementation details about date management
+        // Logic to navigate to the next week's data
+    }
+
+    private void SetLimit()
+    {
+        // Placeholder for limit setting logic
     }
 
     public void Dispose()
@@ -155,7 +173,5 @@
         public string Date { get; set; }
         public decimal AvgAmps { get; set; }
         public decimal AvgKwh { get; set; }
-
-        
     }
 }

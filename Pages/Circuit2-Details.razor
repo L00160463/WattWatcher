@@ -2,8 +2,9 @@
 @using WattWatcher.Data
 @inject ElectricService ElectricService
 @inject AverageService AverageService
+@inject NavigationManager NavigationManager
 
-<h3 class="mb-4 text-center">Garage Circuit Details</h3>
+<h3 class="mb-4 text-center">Kitchen Circuit Details</h3>
 
 <div class="container">
     <div class="row justify-content-center">
@@ -11,7 +12,7 @@
             <!-- Bar Chart for Daily Average Amperage -->
             <div class="card shadow-sm p-3 mb-4 bg-white rounded">
                 <div class="card-body">
-                    <h4 class="text-center mb-4">Average Amperage This Week (Garage)</h4>
+                    <h4 class="text-center mb-4">Average Amperage This Week (Kitchen)</h4>
                     @if (chartModels != null && chartModels.Any())
                     {
                         <ApexChart TItem="ChartModel"
@@ -61,6 +62,22 @@
                     </div>
                 </div>
             }
+
+
+            <!-- Set Limit Form -->
+            <div class="card shadow-sm p-3 mb-4 bg-white rounded">
+                <div class="card-body">
+                    <h5 class="text-center mb-4">Set Amperage Limit (Amps)</h5>
+                    <form>
+                        <div class="input-group mb-3">
+                            <input type="number" class="form-control" placeholder="Enter new limit" aria-label="New amperage limit">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" @onclick="SetLimit">Set Limit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             <!-- Summary and Recommendations -->
             <div class="card mb-4">
@@ -142,10 +159,22 @@
         // Adjust the dates and reload data for the next week
     }
 
+    private void GoToSetLimit(int circuitId)
+    {
+        NavigationManager.NavigateTo($"/SetLimit/{circuitId}");
+    }
+
+    private void SetLimit()
+    {
+        // Placeholder for limit setting logic
+    }
+
+
     public void Dispose()
     {
         ElectricService.OnDataUpdated -= UpdateData;
     }
+
 
     public class ChartModel
     {

@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using WattWatcher.Data
 @inject UIDataService UIDataService
+@inject SmsService SmsService
 
 <h1 class="text-center mt-5 pt-3">Welcome to Your Smart Home Dashboard</h1>
 <h3 class="text-center mt-2">View Your Electricity Consumption</h3>
@@ -31,19 +32,6 @@
                 </div>
             </div>
 
-            <!-- Set Limit Card -->
-            <div class="card shadow-sm p-3 mb-5 bg-white rounded">
-                <div class="card-body">
-                    <h5 class="text-center mb-4">Set a Limit on Live Total Amperage</h5>
-                    <div class="input-group mb-3">
-                        <input type="number" class="form-control" placeholder="Enter amperage limit" aria-label="Amperage limit" >
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" @onclick="SetLimit">Set Limit</button>
-                        </div>
-                    </div>
-                   
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -53,6 +41,9 @@
     public List<ElectricModel> CircuitsData { get; set; } = new List<ElectricModel>();
     private int updateKey = 0;
     private ApexChartOptions<ElectricModel> options { get; set; } = new();
+    private decimal alertThreshold = 72m;  // 10% below 80 Amps
+    private bool alertSent = false; // Flag to track if alert has been sent
+
 
     public decimal TotalAmperage { get; set; } = 0;
 
@@ -89,6 +80,21 @@
             CircuitsData = data;
             TotalAmperage = CircuitsData.Sum(e => e.Amps);
             updateKey++;  // Increment key to force re-render
+
+
+            if (TotalAmperage >= alertThreshold && TotalAmperage <= 80)
+            {
+                if (!alertSent)
+                {
+                    SmsService.SendSms("+353871146998", "Warning: Your current total amperage (" + TotalAmperage.ToString("0.00") + "A) is within 10% of your 80A limit.");
+                    alertSent = true; // Set the flag so the message is not sent repeatedly
+                }
+            }
+            else
+            {
+                alertSent = false; // Reset the flag if amperage falls below the threshold
+            }
+
             StateHasChanged(); // Re-render the component with the new data
         });
     }
@@ -98,8 +104,5 @@
         UIDataService.OnDataUpdated -= DataUpdatedHandler; // Cleanup to avoid memory leaks
     }
 
-    private void SetLimit()
-    {
-        
-    }
+   
 }
