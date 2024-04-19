@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using WattWatcher.Data;
 using System.Net.Http;
+using Blazored.LocalStorage;
 
 namespace WattWatcher
 {
@@ -30,6 +31,11 @@ namespace WattWatcher
             builder.Services.AddScoped<HttpClient>();
             builder.Services.AddScoped<UIDataService>();
             builder.Services.AddScoped<AverageService>();
+            builder.Services.AddBlazoredLocalStorage();  // Register Blazored LocalStorage
+
+
+
+
 
             // Properly initialize SmsService with configuration
             builder.Services.AddSingleton(sp =>
@@ -43,5 +49,9 @@ namespace WattWatcher
 
             return builder.Build();
         }
+
+
     }
+
+
 }

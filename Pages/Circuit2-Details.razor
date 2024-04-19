@@ -3,6 +3,8 @@
 @inject ElectricService ElectricService
 @inject AverageService AverageService
 @inject NavigationManager NavigationManager
+@inject SmsService SmsService
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <h3 class="mb-4 text-center">Kitchen Circuit Details</h3>
 
@@ -63,14 +65,13 @@
                 </div>
             }
 
-
             <!-- Set Limit Form -->
             <div class="card shadow-sm p-3 mb-4 bg-white rounded">
                 <div class="card-body">
-                    <h5 class="text-center mb-4">Set Amperage Limit (Amps)</h5>
+                    <h5 class="text-center mb-4">Set Weekly Cost Limit (Euro)</h5>
                     <form>
                         <div class="input-group mb-3">
-                            <input type="number" class="form-control" placeholder="Enter new limit" aria-label="New amperage limit">
+                            <input type="number" class="form-control" placeholder="Enter new limit" aria-label="New Euro limit" @bind="costLimit2">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary" type="button" @onclick="SetLimit">Set Limit</button>
                             </div>
@@ -110,10 +111,13 @@
     private decimal totalKwhUsage = 0;
     private decimal totalCost = 0;
     private decimal averageDailyKwh = 0;
+    private decimal costLimit2 = 0; // User-defined cost limit in euros
+    private bool alertSent = false;
 
     protected override async Task OnInitializedAsync()
     {
         ElectricService.OnDataUpdated += UpdateData;
+        costLimit2 = await LocalStorage.GetItemAsync<decimal>("CostLimitCircuit2");
         await LoadChartData();
     }
 
@@ -125,15 +129,15 @@
             chartModels = averages.Select(kvp => new ChartModel
                 {
                     Date = kvp.Key.ToString("ddd d/MM/yy"),
-                    AvgAmps = (decimal)kvp.Value.AvgAmpsCircuit2,  // Cast double to decimal for Amps
-                    AvgKwh = (decimal)kvp.Value.AvgKwhCircuit2    // Cast double to decimal for kWh
+                    AvgAmps = (decimal)kvp.Value.AvgAmpsCircuit2,
+                    AvgKwh = (decimal)kvp.Value.AvgKwhCircuit2
                 })
-            .OrderBy(model => ((int)DateTime.ParseExact(model.Date, "ddd d/MM/yy", null).DayOfWeek + 6) % 7)  // Adjust for Monday start
+            .OrderBy(model => ((int)DateTime.ParseExact(model.Date, "ddd d/MM/yy", null).DayOfWeek + 6) % 7)
             .ToList();
 
-            totalKwhUsage = chartModels.Sum(x => x.AvgKwh);  // Sum of AvgKwh for the week
-            totalCost = totalKwhUsage * 0.35m;  // Example electricity cost €0.35 per kWh
-            averageDailyKwh = totalKwhUsage / chartModels.Count;  // Average daily kWh usage
+            totalKwhUsage = chartModels.Sum(x => x.AvgKwh);
+            totalCost = totalKwhUsage * 0.35m;  // Assuming €0.35 per kWh
+            averageDailyKwh = totalKwhUsage / chartModels.Count;
         }
     }
 
@@ -141,40 +145,53 @@
     {
         InvokeAsync(() =>
         {
-            if (circuitId == 2)  // Only update if the data is for Circuit 2
+            if (circuitId == 2)
             {
                 Circuit2Data = newData;
-                StateHasChanged();  // Re-render the component with the new data
+                StateHasChanged();
             }
         });
     }
 
+    private void SetLimit()
+    {
+        LocalStorage.SetItemAsync("CostLimitCircuit2", costLimit2);
+        CheckCostAlert();
+    }
+
+    private void CheckCostAlert()
+    {
+        if (totalCost > costLimit2 * 1.1m)
+        {
+            // If the cost exceeds the limit by more than 10%, send a warning message
+            SmsService.SendSms("+353871146998", $"Warning: Your electricity cost for the Kitchen this week is €{totalCost:N2}, which exceeds your set limit of €{costLimit2:N2} by more than 10%. Please consider reducing your energy consumption.");
+        }
+        else if (totalCost >= costLimit2 * 0.9m)
+        {
+            // If the cost is within 10% of the limit (either slightly below or above but not exceeding by 10%), send an alert message
+            SmsService.SendSms("+353871146998", $"Alert: Your electricity cost for the Kitchen this week is €{totalCost:N2}, which is within 10% of your set limit of €{costLimit2:N2}.");
+        }
+        else
+        {
+            // If the cost is below the lower 10% threshold, consider sending a different kind of message (optional)
+            SmsService.SendSms("+353871146998", $"Notice: Your electricity cost for the Kitchen this week is €{totalCost:N2}, which is below your set limit of €{costLimit2:N2}. Great job on conserving energy!");
+        }
+        
+    }
     private void GoToPreviousWeek()
     {
-        // Adjust the dates and reload data for the previous week
+        // Logic to navigate to the previous week's data
     }
 
     private void GoToNextWeek()
     {
-        // Adjust the dates and reload data for the next week
+        // Logic to navigate to the next week's data
     }
-
-    private void GoToSetLimit(int circuitId)
-    {
-        NavigationManager.NavigateTo($"/SetLimit/{circuitId}");
-    }
-
-    private void SetLimit()
-    {
-        // Placeholder for limit setting logic
-    }
-
 
     public void Dispose()
     {
         ElectricService.OnDataUpdated -= UpdateData;
     }
-
 
     public class ChartModel
     {

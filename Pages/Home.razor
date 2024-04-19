@@ -86,7 +86,7 @@
             {
                 if (!alertSent)
                 {
-                    SmsService.SendSms("+353871146998", "Warning: Your current total amperage (" + TotalAmperage.ToString("0.00") + "A) is within 10% of your 80A limit.");
+                    SmsService.SendSms("+353871146998", "Warning: Your current total amperage (" + TotalAmperage.ToString("0.00") + "A) is within 10% of your 80A limit. Please turn off appliances to remain safe!! ");
                     alertSent = true; // Set the flag so the message is not sent repeatedly
                 }
             }
