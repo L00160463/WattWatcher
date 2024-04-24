@@ -31,6 +31,7 @@ namespace WattWatcher
             builder.Services.AddScoped<HttpClient>();
             builder.Services.AddScoped<UIDataService>();
             builder.Services.AddScoped<AverageService>();
+            builder.Services.AddScoped<TariffNotificationService>();
             builder.Services.AddBlazoredLocalStorage();  // Register Blazored LocalStorage
 
 

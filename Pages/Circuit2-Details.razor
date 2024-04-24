@@ -111,13 +111,17 @@
     private decimal totalKwhUsage = 0;
     private decimal totalCost = 0;
     private decimal averageDailyKwh = 0;
-    private decimal costLimit2 = 0; // User-defined cost limit in euros
+    private decimal costLimit2 = 0; // User-defined cost limit in euros, default is 0
     private bool alertSent = false;
 
     protected override async Task OnInitializedAsync()
     {
         ElectricService.OnDataUpdated += UpdateData;
-        costLimit2 = await LocalStorage.GetItemAsync<decimal>("CostLimitCircuit2");
+        decimal? savedLimit = await LocalStorage.GetItemAsync<decimal?>("CostLimitCircuit2");
+        if (savedLimit.HasValue)
+        {
+            costLimit2 = savedLimit.Value;
+        }
         await LoadChartData();
     }
 
@@ -136,8 +140,9 @@
             .ToList();
 
             totalKwhUsage = chartModels.Sum(x => x.AvgKwh);
-            totalCost = totalKwhUsage * 0.35m;  // Assuming €0.35 per kWh
+            totalCost = totalKwhUsage * 0.35m; // Assuming €0.35 per kWh
             averageDailyKwh = totalKwhUsage / chartModels.Count;
+            CheckCostAlert(); // Check right after data load to alert on current values
         }
     }
 
@@ -148,36 +153,38 @@
             if (circuitId == 2)
             {
                 Circuit2Data = newData;
-                StateHasChanged();
+                StateHasChanged(); // This refreshes the UI with the new data
             }
         });
     }
 
     private void SetLimit()
     {
-        LocalStorage.SetItemAsync("CostLimitCircuit2", costLimit2);
-        CheckCostAlert();
+        LocalStorage.SetItemAsync("CostLimitCircuit2", costLimit2); // Save the new limit to local storage
+        alertSent = false; // Reset alert status when limit is changed
+        CheckCostAlert(); // Check immediately if the new limit condition is met
     }
 
     private void CheckCostAlert()
     {
-        if (totalCost > costLimit2 * 1.1m)
+        if (!alertSent)
         {
-            // If the cost exceeds the limit by more than 10%, send a warning message
-            SmsService.SendSms("+353871146998", $"Warning: Your electricity cost for the Kitchen this week is €{totalCost:N2}, which exceeds your set limit of €{costLimit2:N2} by more than 10%. Please consider reducing your energy consumption.");
+            if (totalCost > costLimit2)
+            {
+                if (totalCost >= costLimit2 * 1.1m)
+                {
+                    SmsService.SendSms("+353871146998", $"Warning: Your electricity cost for the Kitchen this week is €{totalCost:N2}, which exceeds your set limit of €{costLimit2:N2} by more than 10%. Please consider reducing your energy consumption.");
+                    alertSent = true;
+                }
+                else if (totalCost >= costLimit2 * 0.9m)
+                {
+                    SmsService.SendSms("+353871146998", $"Alert: Your electricity cost for the Kitchen this week is €{totalCost:N2}, which is within 10% of your set limit of €{costLimit2:N2}.");
+                    alertSent = true;
+                }
+            }
         }
-        else if (totalCost >= costLimit2 * 0.9m)
-        {
-            // If the cost is within 10% of the limit (either slightly below or above but not exceeding by 10%), send an alert message
-            SmsService.SendSms("+353871146998", $"Alert: Your electricity cost for the Kitchen this week is €{totalCost:N2}, which is within 10% of your set limit of €{costLimit2:N2}.");
-        }
-        else
-        {
-            // If the cost is below the lower 10% threshold, consider sending a different kind of message (optional)
-            SmsService.SendSms("+353871146998", $"Notice: Your electricity cost for the Kitchen this week is €{totalCost:N2}, which is below your set limit of €{costLimit2:N2}. Great job on conserving energy!");
-        }
-        
     }
+
     private void GoToPreviousWeek()
     {
         // Logic to navigate to the previous week's data
