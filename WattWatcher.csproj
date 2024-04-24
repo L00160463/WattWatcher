@@ -52,12 +52,14 @@
 	<ItemGroup>
 		<PackageReference Include="Blazor-ApexCharts" Version="3.1.0" />
 		<PackageReference Include="Blazor.Bootstrap" Version="2.0.0" />
+		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
 		<PackageReference Include="BlazorStrap" Version="5.1.102.51923" />
 		<PackageReference Include="FirebaseAdmin" Version="2.4.0" />
 		<PackageReference Include="FirebaseDatabase.net" Version="4.2.0" />
 		<PackageReference Include="Google.Apis.Auth" Version="1.67.0" />
 		<PackageReference Include="Google.Apis.FirebaseDynamicLinks.v1" Version="1.67.0.3232" />
 		<PackageReference Include="MessageBird" Version="4.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="Twilio" Version="7.0.4" />

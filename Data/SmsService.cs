@@ -6,7 +6,7 @@ public class SmsService
 {
     private readonly string _accountSid;
     private readonly string _authToken;
-    private readonly string _fromNumber;  // This will be your Twilio WhatsApp number formatted as "whatsapp:+14155238886"
+    private readonly string _fromNumber;
 
     public SmsService(string accountSid, string authToken, string fromNumber)
     {

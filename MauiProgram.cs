@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using WattWatcher.Data;
 using System.Net.Http;
+using Blazored.LocalStorage;
 
 namespace WattWatcher
 {
@@ -21,6 +22,8 @@ namespace WattWatcher
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
+
+
 #endif
 
             builder.Services.AddSingleton<ElectricService>();
@@ -28,18 +31,28 @@ namespace WattWatcher
             builder.Services.AddScoped<HttpClient>();
             builder.Services.AddScoped<UIDataService>();
             builder.Services.AddScoped<AverageService>();
+            builder.Services.AddScoped<TariffNotificationService>();
+            builder.Services.AddBlazoredLocalStorage();  // Register Blazored LocalStorage
+
+
+
+
 
             // Properly initialize SmsService with configuration
-            builder.Services.AddSingleton<SmsService>(sp =>
+            builder.Services.AddSingleton(sp =>
                 new SmsService(
-                    "AC2f3034dfe8be1bdf9b31de034b702d47", // Your Account SID
-                    "5176e278c9b14e6c6c56e2d92b770548",                   // Your Auth Token
-                    "+14155238886"                       // Your WhatsApp-enabled Twilio number
+                    "AC2f3034dfe8be1bdf9b31de034b702d47", // Account SID
+                    "1cae3418bdbd037f21058a4179c258e0",                   // Auth Token
+                    "+14155238886"                       //WhatsApp-enabled Twilio number
                 ));
 
             builder.Services.AddBlazorBootstrap();
 
             return builder.Build();
         }
+
+
     }
+
+
 }
