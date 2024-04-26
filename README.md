@@ -10,7 +10,7 @@ WattWatcher is an innovative IoT-based system designed to monitor residential en
 - **Alerts System**: Notifications for critical usage levels and changes in tariff rates.
 
 ## System Architecture
-- **Hardware**: Utilizes the ESP-8266 module and Current Transformer (CT) Clamps.
+- **Hardware**: Utilizes the ESP-32 module and Current Transformer (CT) Clamps.
 - **Software**: Firebase for backend storage; .NET MAUI for the frontend application.
 
 ## Getting Started
@@ -25,7 +25,7 @@ git clone https://github.com/L00160463/WattWatcher.git
 
 2. **Configure the Arduino Environment**
 - Install required libraries in Arduino IDE.
-- Upload code to the ESP-8266 module.
+- Upload code to the ESP-32 module.
 3. **Set up Firebase**
 - Create and configure a new Firebase project.
 - Integrate Firebase with the .NET MAUI application.
