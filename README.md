@@ -1,7 +1,7 @@
 # WattWatcher
 
 ## Introduction
-WattWatcher is an innovative IoT-based system designed to monitor residential energy consumption in real-time. This project is part of Matthew Mc Daid's final thesis for the BSc (Hons) in Applied Computing at Atlantic Technological University.
+WattWatcher is an innovative IoT-based system designed to monitor residential energy consumption in real-time. This project is part of My final thesis for the BSc (Hons) in Applied Computing at Atlantic Technological University.
 
 ## Key Features
 - **Real-Time Monitoring**: Provides instant updates on electricity usage.
