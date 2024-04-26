@@ -37,7 +37,6 @@ public class UIDataService
         catch (Exception ex)
         {
             Console.WriteLine($"Error in fetching data: {ex.Message}");
-            // Consider what to do in case of an error. Maybe invoke with null or previous good data?
         }
     }
 

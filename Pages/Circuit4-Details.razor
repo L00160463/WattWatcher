@@ -1,27 +1,39 @@
 ﻿@page "/circuit4"
 @using WattWatcher.Data
 @inject ElectricService ElectricService
+@inject AverageService AverageService
+@inject NavigationManager NavigationManager
+@inject SmsService SmsService
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
-<h3 class="mb-4 text-center">Circuit 4 Details</h3>
+<h3 class="mb-4 text-center">Master Bedroom Circuit Details</h3>
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-10 col-md-12">
-            <!-- Bar Chart for Weekly Gross Value -->
+            <!-- Bar Chart for Daily Average Amperage -->
             <div class="card shadow-sm p-3 mb-4 bg-white rounded">
                 <div class="card-body">
-                    <h4 class="text-center mb-4">Weekly Gross Value</h4>
-                    <ApexChart TItem="Order"
-                               Title="Weekly Sales Chart">
-                        <ApexPointSeries TItem="Order"
-                                         Items="Orders"
-                                         Name="Gross Value"
-                                         XValue="@(e => e.Day)"
-                                         YAggregate="@(e => e.Sum(e => e.GrossValue))"
-                                         SeriesType="SeriesType.Bar" />
-                    </ApexChart>
+                    <h4 class="text-center mb-4">Average Amperage This Week (Master Bedroom)</h4>
+                    @if (chartModels != null && chartModels.Any())
+                    {
+                        <ApexChart TItem="ChartModel"
+                                   Title="Average Amperage">
+                            <ApexPointSeries TItem="ChartModel"
+                                             Items="chartModels"
+                                             Name="Amperage"
+                                             XValue="@(e => e.Date)"
+                                             YValue="@(e => e.AvgAmps)"
+                                             SeriesType="SeriesType.Bar" />
+                        </ApexChart>
+                    }
+                    else
+                    {
+                        <p>Loading data...</p>
+                    }
                 </div>
             </div>
+
 
             <!-- Live Data Display -->
             @if (Circuit4Data != null)
@@ -49,6 +61,21 @@
                 </div>
             }
 
+            <!-- Set Limit Form -->
+            <div class="card shadow-sm p-3 mb-4 bg-white rounded">
+                <div class="card-body">
+                    <h5 class="text-center mb-4">Set Weekly Cost Limit (Euro)</h5>
+                    <form>
+                        <div class="input-group mb-3">
+                            <input type="number" class="form-control" placeholder="Enter new limit" aria-label="New Euro limit" @bind="costLimit4">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" @onclick="SetLimit">Set Limit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Summary and Recommendations -->
             <div class="card mb-4">
                 <div class="card-header">
@@ -56,9 +83,9 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Energy Usage This Month: <strong>450 kWh</strong></li>
-                        <li class="list-group-item">Cost This Month: <strong>€120.00</strong></li>
-                        <li class="list-group-item">Average Daily Use: <strong>15 kWh</strong></li>
+                        <li class="list-group-item">Energy Usage This Week: <strong>@totalKwhUsage.ToString("N2") kWh</strong></li>
+                        <li class="list-group-item">Cost This Week: <strong>€@totalCost.ToString("N2")</strong></li>
+                        <li class="list-group-item">Average Daily Use: <strong>@averageDailyKwh.ToString("N2") kWh</strong></li>
                         <li class="list-group-item">
                             Recommended Actions:
                             <ul>
@@ -75,27 +102,44 @@
 </div>
 
 @code {
-    private List<Order> Orders { get; set; }
+    private List<ChartModel> chartModels = new List<ChartModel>();
     public ElectricModel Circuit4Data { get; set; }
+    private decimal totalKwhUsage = 0;
+    private decimal totalCost = 0;
+    private decimal averageDailyKwh = 0;
+    private decimal costLimit4 = 0;
+    private bool alertSent = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         ElectricService.OnDataUpdated += UpdateData;
-        InitializeOrders();
+        decimal? savedLimit = await LocalStorage.GetItemAsync<decimal?>("CostLimitCircuit4");
+        if (savedLimit.HasValue)
+        {
+            costLimit4 = savedLimit.Value;
+        }
+        await LoadChartData();
     }
 
-    private void InitializeOrders()
+    private async Task LoadChartData()
     {
-        Orders = new List<Order>
+        var averages = await AverageService.GetDailyAveragesAsync();
+        if (averages != null)
         {
-            new Order { Day = "Monday", GrossValue = 100 },
-            new Order { Day = "Tuesday", GrossValue = 65 },
-            new Order { Day = "Wednesday", GrossValue = 75 },
-            new Order { Day = "Thursday", GrossValue = 22 },
-            new Order { Day = "Friday", GrossValue = 7 },
-            new Order { Day = "Saturday", GrossValue = 54 },
-            new Order { Day = "Sunday", GrossValue = 11 }
-        };
+            chartModels = averages.Select(kvp => new ChartModel
+                {
+                    Date = kvp.Key.ToString("ddd d/MM/yy"),
+                    AvgAmps = (decimal)kvp.Value.AvgAmpsCircuit4,
+                    AvgKwh = (decimal)kvp.Value.AvgKwhCircuit4
+                })
+            .OrderBy(model => ((int)DateTime.ParseExact(model.Date, "ddd d/MM/yy", null).DayOfWeek + 6) % 7)
+            .ToList();
+
+            totalKwhUsage = chartModels.Sum(x => x.AvgKwh);
+            totalCost = totalKwhUsage * 0.35m; // Assuming €0.35 per kWh
+            averageDailyKwh = totalKwhUsage / chartModels.Count;
+            CheckCostAlert(); // Check right after data load to alert on current values
+        }
     }
 
     private void UpdateData(int circuitId, ElectricModel newData)
@@ -105,19 +149,48 @@
             if (circuitId == 4)
             {
                 Circuit4Data = newData;
+                StateHasChanged(); // This refreshes the UI with the new data
             }
-            StateHasChanged();
         });
     }
+
+    private void SetLimit()
+    {
+        LocalStorage.SetItemAsync("CostLimitCircuit4", costLimit4); // Save the new limit to local storage
+        alertSent = false; // Reset alert status when limit is changed
+        CheckCostAlert(); // Check immediately if the new limit condition is met
+    }
+
+    private void CheckCostAlert()
+    {
+        if (!alertSent)
+        {
+            if (totalCost > costLimit4)
+            {
+                if (totalCost >= costLimit4 * 1.1m)
+                {
+                    SmsService.SendSms("+353871146998", $"Warning: Your electricity cost for the Master Bedroom this week is €{totalCost:N2}, which exceeds your set limit of €{costLimit4:N2} by more than 10%. Please consider reducing your energy consumption.");
+                    alertSent = true;
+                }
+                else if (totalCost >= costLimit4 * 0.9m)
+                {
+                    SmsService.SendSms("+353871146998", $"Alert: Your electricity cost for the Master Bedroom this week is €{totalCost:N2}, which is within 10% of your set limit of €{costLimit4:N2}.");
+                    alertSent = true;
+                }
+            }
+        }
+    }
+
 
     public void Dispose()
     {
         ElectricService.OnDataUpdated -= UpdateData;
     }
 
-    public class Order
+    public class ChartModel
     {
-        public string Day { get; set; }
-        public decimal GrossValue { get; set; }
+        public string Date { get; set; }
+        public decimal AvgAmps { get; set; }
+        public decimal AvgKwh { get; set; }
     }
 }

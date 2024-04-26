@@ -34,11 +34,7 @@
                 </div>
             </div>
 
-            <div class="text-center mb-3">
-                <button class="btn btn-primary mr-2" @onclick="GoToPreviousWeek">Previous Week</button>
-                <button class="btn btn-primary" @onclick="GoToNextWeek">Next Week</button>
-            </div>
-
+       
             <!-- Live Data Display -->
             @if (Circuit2Data != null)
             {
@@ -111,7 +107,7 @@
     private decimal totalKwhUsage = 0;
     private decimal totalCost = 0;
     private decimal averageDailyKwh = 0;
-    private decimal costLimit2 = 0; // User-defined cost limit in euros, default is 0
+    private decimal costLimit2 = 0; 
     private bool alertSent = false;
 
     protected override async Task OnInitializedAsync()
@@ -185,16 +181,7 @@
         }
     }
 
-    private void GoToPreviousWeek()
-    {
-        // Logic to navigate to the previous week's data
-    }
-
-    private void GoToNextWeek()
-    {
-        // Logic to navigate to the next week's data
-    }
-
+  
     public void Dispose()
     {
         ElectricService.OnDataUpdated -= UpdateData;

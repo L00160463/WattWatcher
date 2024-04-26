@@ -22,7 +22,9 @@
                 <div class="col-md-3">
                     <select class="form-control" @bind="selectedCircuit">
                         <option value="1">Living Room</option>
-                        <option value="2">Garage</option>
+                        <option value="2">Kitchen</option>
+                        <option value="3">Central heating</option>
+                        <option value="4">Garage</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -43,6 +45,7 @@
                     <tbody>
                         @if (selectedCircuit == "1")
                         {
+                           
                             @foreach (var item in filteredData)
                             {
                                 <tr>
@@ -53,7 +56,7 @@
                                 </tr>
                             }
                         }
-                        else
+                        else if (selectedCircuit == "2")
                         {
                             @foreach (var item in filteredData)
                             {
@@ -62,6 +65,31 @@
                                     <td>@item.Circuit2.AvgAmps</td>
                                     <td>@item.Circuit2.AvgKwh</td>
                                     <td>@item.Circuit2.AvgWatts</td>
+                                </tr>
+                            }
+                        }
+
+                        else if (selectedCircuit == "3")
+                        {
+                            @foreach (var item in filteredData)
+                            {
+                                <tr>
+                                    <td>@item.Timestamp.ToString("ddd d/MM/yy")</td>
+                                    <td>@item.Circuit3.AvgAmps</td>
+                                    <td>@item.Circuit3.AvgKwh</td>
+                                    <td>@item.Circuit3.AvgWatts</td>
+                                </tr>
+                            }
+                        }
+                        else if (selectedCircuit == "4")
+                        {
+                            @foreach (var item in filteredData)
+                            {
+                                <tr>
+                                    <td>@item.Timestamp.ToString("ddd d/MM/yy")</td>
+                                    <td>@item.Circuit4.AvgAmps</td>
+                                    <td>@item.Circuit4.AvgKwh</td>
+                                    <td>@item.Circuit4.AvgWatts</td>
                                 </tr>
                             }
                         }

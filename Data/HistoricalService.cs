@@ -25,7 +25,9 @@ namespace WattWatcher.Data
                 {
                     Timestamp = DateTimeOffset.FromUnixTimeSeconds(long.Parse(kvp.Key)).DateTime,
                     Circuit1 = kvp.Value.Circuit1,
-                    Circuit2 = kvp.Value.Circuit2
+                    Circuit2 = kvp.Value.Circuit2,
+                    Circuit3 = kvp.Value.Circuit3,
+                    Circuit4 = kvp.Value.Circuit4
                 }).ToList();
 
                 return processedData;
@@ -42,6 +44,9 @@ namespace WattWatcher.Data
         {
             public CircuitData Circuit1 { get; set; }
             public CircuitData Circuit2 { get; set; }
+
+            public CircuitData Circuit3 { get; set; }
+            public CircuitData Circuit4 { get; set; }
         }
     }
 }
