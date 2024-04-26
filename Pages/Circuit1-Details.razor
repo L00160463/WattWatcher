@@ -34,10 +34,7 @@
                 </div>
             </div>
 
-            <div class="text-center mb-3">
-                <button class="btn btn-primary mr-2" @onclick="GoToPreviousWeek">Previous Week</button>
-                <button class="btn btn-primary" @onclick="GoToNextWeek">Next Week</button>
-            </div>
+           
 
             <!-- Live Data Display -->
             @if (Circuit1Data != null)
@@ -83,7 +80,7 @@
             <!-- Summary and Recommendations -->
             <div class="card mb-4">
                 <div class="card-header">
-                    Monthly Summary and Recommendations
+                    Weekly Summary and Recommendations
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
@@ -111,7 +108,7 @@
     private decimal totalKwhUsage = 0;
     private decimal totalCost = 0;
     private decimal averageDailyKwh = 0;
-    private decimal costLimit = 0; // User-defined cost limit in euros
+    private decimal costLimit = 0; 
     private bool alertSent = false;
     bool agree1;
 
@@ -182,18 +179,5 @@
 
 
 
-    private void GoToPreviousWeek(MouseEventArgs e)
-    {
-        throw new NotImplementedException();
-    }
-    private void GoToNextWeek(MouseEventArgs e)
-    {
-        throw new NotImplementedException();
-    }
-    private void Disable(MouseEventArgs e)
-    {
-        throw new NotImplementedException();
-
-
-    }
+  
 }
